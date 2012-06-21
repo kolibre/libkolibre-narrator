@@ -1,0 +1,55 @@
+Improvements
+----------------------
+
+ * Structure audio files for each voice in directories according to message type e.g.
+	 +fi
+	  -translations.csv
+	  +sanna
+	   +announcement
+	   +date
+	    -maanantai.wav
+	    -tiistai.wav
+	   +number
+	    -0.wav
+	    -1.wav
+	   +prompt
+	    -tervetuloa....wav
+	 +sv
+	  -translations.csv
+	  +samuel
+	   +announcement
+	   +date
+	    -måndag.wav
+	    -tisdag.wav
+	   +number
+	    -0.wav
+	    -1.wav
+	   +prompt
+	    -valkommen....wav
+
+ * Implement new naming schema for prompts consisting of several files, e.g.
+     materialet_har_?_bokmarken_pt1.wav
+     materialet_har_?_bokmarken_pt2.wav
+
+ * Check that 'message_id' is unique when inserting a new row into table messagetranslations
+
+ * Drop usage deprecated 'server_id' column in database
+
+ * Clean-up messages.csv and delete deprecated prompts
+
+Follow ups
+----------------------
+ * date and time prompts: current translations are working for Finnish and Swedish
+    * parameter types for prompts:
+        * "{dayname} {date} of {month} {year} {yearnum}"
+            dayname -> date(dayname)
+            date    -> date(date)
+            month   -> date(month)
+            year    -> date(month)
+            yearnum -> date(yearnum)
+        * "{hour} {hour12} {minute} {second} {ampm}"
+            hour   -> number
+            hour12 -> number
+            minute -> date(minute)
+            second -> date(second)
+            ampm   -> message
