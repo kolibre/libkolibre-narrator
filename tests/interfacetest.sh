@@ -1,12 +1,12 @@
-#!/bin/sh -e
+#!/bin/sh
 
-toppkgdir=${scrdir:-.}/..
+toppkgdir=${srcdir:-.}
 utils=$toppkgdir/../utils/build_message_db.py
 prompts=$toppkgdir/../prompts/narrator.csv
 messages=$toppkgdir/../prompts/types.csv
 translations=$toppkgdir/../prompts/sv_translations.csv
 language=sv
-database=$toppkgdir/narrator.db
+database=narrator.db
 
 python $utils -p $prompts -m $messages -t $translations -l $language -o $database
 
