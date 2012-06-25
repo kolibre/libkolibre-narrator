@@ -6,5 +6,4 @@ if [ $? -ne 0 ] ; then
     exit 77
 fi
 
-./dbtest
-rm empty.db
+./basicsay
