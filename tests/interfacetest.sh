@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 toppkgdir=${srcdir:-.}
 utils=$toppkgdir/../utils/build_message_db.py
