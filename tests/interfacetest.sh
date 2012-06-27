@@ -11,4 +11,6 @@ database=narrator.db
 python $utils -p $prompts -m $messages -t $translations -l $language -o $database
 
 ./interfacetest $language $database
+result=$?
 rm $database
+exit $result
