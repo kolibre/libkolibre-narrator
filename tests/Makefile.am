@@ -17,8 +17,12 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-check_PROGRAMS = basicsay dbtest interfacetest
-TESTS = basicsay dbtest.sh interfacetest.sh
+check_PROGRAMS = basicsay dbtest interfacetest stress_test
+TESTS = basicsay dbtest.sh interfacetest.sh stress_test.sh
+
+stress_test_CPPFLAGS = @BOOST_CPPFLAGS@ @LOG4CXX_LIBS@
+stress_test_SOURCES = stress_test.cpp
+stress_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_CFLAGS@
 
 basicsay_CPPFLAGS = @BOOST_CPPFLAGS@ @LOG4CXX_LIBS@
 basicsay_SOURCES = basicsay.cpp
@@ -34,4 +38,4 @@ interfacetest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_CFLAGS@
 
 INCLUDES = -I$(top_srcdir)/src
 
-EXTRA_DIST = aktuell_sida.ogg setup_logging.h dbtest.sh interfacetest.sh
+EXTRA_DIST = aktuell_sida.ogg setup_logging.h dbtest.sh interfacetest.sh stress_test.sh
