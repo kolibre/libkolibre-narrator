@@ -29,6 +29,8 @@ import csvparser
 import sqlite3
 import getopt
 import sys
+import shutil
+import tempfile
 from os import path
 from os import system
 from os import remove
@@ -49,7 +51,7 @@ def usage():
 	print
 	print 'optional arguments:'
 	print ' -a, --append\t\t\tappend prompts to existing database'
-	print ' -i, --indir\t\t\tuse and save audio in this directory, default is /tmp'
+	print ' -i, --indir\t\t\tuse and save narrator audio in this directory, default is /tmp'
 	print ' -u, --unarrator\t\tcreate prompts for unarrator'
 	print ' -h, --help\t\t\tshow this help message and exit'
 
@@ -252,75 +254,80 @@ if __name__ == '__main__':
 	messages = []         # list of Message instances
 	translations = []     # list of Translation instances
 	promptmessages = []   # list of Messages to include in build
-
-	# generate a list of translations
-	for trl in trls:
-		if len(trl) >= 2:
-			basenames = trl[2:len(trl)]
-			translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, audioDir))
-
-	# generate a list of messages
-	for msg in msgs:
-		if len(msg) >= 3:
-			translation = [translation for translation in translations if translation.key == msg[2]]
-			if len(translation) == 1:
-				messages.append(Message.Message(msg[2], msg[1], msg[0], translation[0]))
+	try:
+		tmpAudioDir = tempfile.mkdtemp()
+		print tmpAudioDir
+		# generate a list of translations
+		for trl in trls:
+			if len(trl) >= 2:
+				basenames = trl[2:len(trl)]
+				translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, tmpAudioDir))
+	
+		# generate a list of messages
+		for msg in msgs:
+			if len(msg) >= 3:
+				translation = [translation for translation in translations if translation.key == msg[2]]
+				if len(translation) == 1:
+					messages.append(Message.Message(msg[2], msg[1], msg[0], translation[0]))
+				else:
+					sys.stderr.write('Error: no \'' + langCode + '\' translation found for message \'' + msg[2] + '\'\n')
+					sys.stderr.write('Tip: You probably just have to add it to ' + translationFile + '\n')
+					sys.exit(2)
+	
+		# generate a list of message to include in build
+		for prompt in prompts:
+			message = [message for message in messages if message.key == prompt[0]]
+			if len(message) == 1:
+				promptmessages.append(message[0])
 			else:
-				sys.stderr.write('Error: no \'' + langCode + '\' translation found for message \'' + msg[2] + '\'\n')
-				sys.stderr.write('Tip: You probably just have to add it to ' + translationFile + '\n')
+				sys.stderr.write('Error: no message with identifier \'' + prompt[0] + '\' found in ' + messageFile + '\n')
+				sys.stderr.write('Tip: You probably just have to add it to ' + messageFile + '\n')
 				sys.exit(2)
-
-	# generate a list of message to include in build
-	for prompt in prompts:
-		message = [message for message in messages if message.key == prompt[0]]
-		if len(message) == 1:
-			promptmessages.append(message[0])
+	
+		# create ogg audio for messages to include in build
+		if buildDB:
+			oggcreateFailed = False
+			for message in promptmessages:
+				retval = message.oggcreate(langCode)
+				if retval != True:
+					oggcreateFailed = True
+			if oggcreateFailed:
+				sys.exit(2)
+	
+			# validate messages to include in build
+			for message in promptmessages:
+				valid = message.validate()
+				if valid != True:
+					print valid
+					sys.exit(2)
+	
+		if buildDB:
+			# connect to sql database
+			sql = sqlite3.connect(outputFile)
+			sql.text_factory = str
+			cursor = sql.cursor()
+	
+			# create table message
+			cursor.execute('CREATE TABLE IF NOT EXISTS message (string TEXT, class TEXT, id INT, UNIQUE(class, id))')
+			# create table messageparameter
+			cursor.execute('CREATE TABLE IF NOT EXISTS messageparameter (message_id INT, key TEXT, type TEXT)')
+			# create table messagetranslation
+			cursor.execute('CREATE TABLE IF NOT EXISTS messagetranslation (message_id INT, translation TEXT, language TEXT, audiotags TEXT)')
+			# create table messageaudio
+			cursor.execute('CREATE TABLE IF NOT EXISTS messageaudio (translation_id INT, tagid INT, text TEXT, size INT, length INT, data BLOB, md5 TEXT)')
+	
+			# insert data in db
+			for message in promptmessages:
+				message.insert(cursor)
+	
+			# save (commit) the changes
+			sql.commit()
+	
+			# close cursor
+			cursor.close()
 		else:
-			sys.stderr.write('Error: no message with identifier \'' + prompt[0] + '\' found in ' + messageFile + '\n')
-			sys.stderr.write('Tip: You probably just have to add it to ' + messageFile + '\n')
-			sys.exit(2)
-
-	# create ogg audio for messages to include in build
-	if buildDB:
-		oggcreateFailed = False
-		for message in promptmessages:
-			retval = message.oggcreate(langCode)
-			if retval != True:
-				oggcreateFailed = True
-		if oggcreateFailed:
-			sys.exit(2)
-
-		# validate messages to include in build
-		for message in promptmessages:
-			valid = message.validate()
-			if valid != True:
-				print valid
-				sys.exit(2)
-
-	if buildDB:
-		# connect to sql database
-		sql = sqlite3.connect(outputFile)
-		sql.text_factory = str
-		cursor = sql.cursor()
-
-		# create table message
-		cursor.execute('CREATE TABLE IF NOT EXISTS message (string TEXT, class TEXT, id INT, UNIQUE(class, id))')
-		# create table messageparameter
-		cursor.execute('CREATE TABLE IF NOT EXISTS messageparameter (message_id INT, key TEXT, type TEXT)')
-		# create table messagetranslation
-		cursor.execute('CREATE TABLE IF NOT EXISTS messagetranslation (message_id INT, translation TEXT, language TEXT, audiotags TEXT)')
-		# create table messageaudio
-		cursor.execute('CREATE TABLE IF NOT EXISTS messageaudio (translation_id INT, tagid INT, text TEXT, size INT, length INT, data BLOB, md5 TEXT)')
-
-		# insert data in db
-		for message in promptmessages:
-			message.insert(cursor)
-
-		# save (commit) the changes
-		sql.commit()
-
-		# close cursor
-		cursor.close()
-	else:
-		for message in promptmessages:
-			message.resample(unarratorDir, langCode)
+			for message in promptmessages:
+				message.resample(unarratorDir, langCode)
+	finally:
+		print "Removing temp folder: " + tmpAudioDir
+		shutil.rmtree(tmpAudioDir)

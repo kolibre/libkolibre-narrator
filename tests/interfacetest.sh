@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh -e
 
 toppkgdir=${srcdir:-.}
 utils=$toppkgdir/../utils/build_message_db.py
@@ -11,4 +11,6 @@ database=narrator.db
 python $utils -p $prompts -m $messages -t $translations -l $language -o $database
 
 ./interfacetest $language $database
+result=$?
 rm $database
+exit $result

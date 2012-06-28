@@ -29,6 +29,7 @@ from os import path
 from os import popen
 from os import remove
 from os import system
+from os import path
 
 class Audio:
 	"""
@@ -174,9 +175,9 @@ class Audio:
 			returns 0 if the convertion was successfull,
 			otherwise returns a string containing the command used to convert audio
 		"""
-
-		trimcommand = 'sox -q -t wav ' + wavfile + ' /tmp/trimmed.wav silence 1 1 0.05% reverse silence 1 1 0.05% reverse pad 0.010 0.050'
-		encodecommand = 'oggenc -Q --resample 44100 /tmp/trimmed.wav -o ' + oggfile
+		trimmed_wav_file = path.split(wavfile)[0] + '/trimmed.wav'
+		trimcommand = 'sox -q -t wav ' + wavfile + ' ' + trimmed_wav_file + ' silence 1 1 0.05% reverse silence 1 1 0.05% reverse pad 0.010 0.050'
+		encodecommand = 'oggenc -Q --resample 44100 ' + trimmed_wav_file + ' -o ' + oggfile
 
 		# ogg file does not exist
 		if not path.exists(self.oggfile):
