@@ -102,16 +102,11 @@ Major dependencies for Kolibre-narrator:
 
 Building from source
 ---------------------------------
-Currently no binary packages of Kolibre-narrator are distributed. Therefore,
-the only way to use Kolibre-narrator is by building the package from source.
-
-If all dependencies are available on your system, the package can be compiled
-using
-
 If building from GIT sources, first do a:
 $ autoreconf -fi
 
-If building from a release tarball you can skip de above step.
+If building from a release tarball you can skip the above step.
+
 $ ./configure
 $ make
 $ make install
