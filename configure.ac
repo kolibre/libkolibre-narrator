@@ -149,6 +149,7 @@ if test "x$enable_integer_samples" = "xyes"; then
 else
         echo "****** Float sample type enabled ******"
         AC_DEFINE(FLOAT_SAMPLES,1,[Use Float as Sample type])
+        PKG_CHECK_MODULES(SOUNDTOUCH, soundtouch, HAVE_SOUNDTOUCH=yes, HAVE_SOUNDTOUCH=no)
         PKG_CHECK_MODULES(SOUNDTOUCH, soundtouch-1.0, HAVE_SOUNDTOUCH=yes, HAVE_SOUNDTOUCH=no)
         if (test "x$HAVE_SOUNDTOUCH" = "xno") then
            AC_MSG_ERROR([**libsoundtouch >= 1.3.1 is needed to build libkolibre-narrator **])
