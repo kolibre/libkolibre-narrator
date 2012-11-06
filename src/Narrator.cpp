@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2012  The Kolibre Foundation
+Copyright (C) 2012 Kolibre
 
 This file is part of kolibre-narrator.
 
@@ -24,7 +24,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
  *
  * \note Remeber to register slots for the signals that the narrator sends.
  *
- * \author Kolibre Foundation (www.kolibre.org)
+ * \author Kolibre (www.kolibre.org)
  *
  * Contact: info@kolibre.org
  *
