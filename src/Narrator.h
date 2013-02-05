@@ -30,8 +30,6 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <boost/signals2.hpp>
 
-#include "Message.h"
-
 #define NARRATOR_MIN_TEMPO 0.5
 #define NARRATOR_MAX_TEMPO 1.5
 #define NARRATOR_MIN_PITCH 0.5
@@ -43,6 +41,7 @@ using namespace std;
 
 class Filter;
 class PortAudio;
+class MessageParameter;
 
 class Narrator
 {
@@ -102,6 +101,12 @@ class Narrator
 
         void setDatabasePath(string path);
         string getDatabasePath();
+
+        // Functions to find and insert audio
+        bool hasOggAudio(const char *identifier);
+        bool hasMp3Audio(const char *identifier);
+        bool addOggAudio(const char *identifier, const char *data, int size);
+        bool addMp3Audio(const char *identifier, const char *data, int size);
 
     private:
         enum threadState { DEAD, WAIT, PLAY, RESET, EXIT };

@@ -22,7 +22,6 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include "setup_logging.h"
-#include <MessageHandler.h>
 
 bool narratorDone = false;
 
@@ -57,72 +56,6 @@ int readData(std::string file, char ** buffer){
     return length;
 }
 
-/*
- * try building Message, MessageTranslation and MessageAudio object,
- * and insert/update messages database
- */
-int insert_new_message(std::string audio_file_str, std::string message_text, int labelId, std::string lang = "sv", std::string labelClass = "string") {
-
-    // create MessageAudio object
-    MessageAudio messageAudio;
-    messageAudio.setTagid( 0 );
-    messageAudio.setText( message_text );
-    messageAudio.setSize( 0 );
-    messageAudio.setLength( 0 ); // not available via DO interface
-    messageAudio.setMd5( "" ); // not available via DO inteface
-    messageAudio.setUri( "" );
-
-    // create MessageTranslation object
-    MessageTranslation messageTranslation;
-    messageTranslation.setLanguage( lang );
-    messageTranslation.setText( message_text );
-    messageTranslation.setAudiotags( "[0]" );
-
-    // create Message object
-    Message message;
-    message.setString( message_text );
-    message.setClass( labelClass );
-    message.setId( labelId );
-
-    // use functions in MessageHandler to find/insert messages
-    MessageHandler mh;
-    long messageid = mh.findMessage(message);
-
-
-    // download audio data and insert message
-    if( messageid < 0 )
-    {
-        // download audio
-        char *audio_data = NULL;
-        int audio_size = readData(audio_file_str, &audio_data);
-
-        if (audio_size > 0)
-        {
-            messageAudio.setAudioData(audio_data, audio_size);
-            messageTranslation.addAudio(messageAudio);
-            message.setTranslation(messageTranslation);
-
-            // insert message
-            messageid = mh.updateMessage(message);
-            free(audio_data);
-
-            if( messageid < 0 )
-            {
-                // MessageHandler writes error messages to log in case of failure
-                cout << "Inserting message " << message_text << " FAILED." << endl;
-                return -1;
-            }
-        }
-        else
-        {
-            cout << "Downloading audio data FAILED." << endl;
-            return -1;
-        }
-
-    }
-    return messageid;
-}
-
 int main(int argc, char **argv)
 {
     setup_logging();
@@ -137,18 +70,72 @@ int main(int argc, char **argv)
     usleep(500);
     assert(!narratorDone);
 
-    std::string file, message_text;
+    std::string file, identifier;
     char* srcdir = getenv("srcdir");
     if(!srcdir)
         srcdir = ".";
     file = string(srcdir) + string("/aktuell_sida.ogg");
-    message_text = "Aktuell sida";
-    int labelId = 1;
-    int resourceId = insert_new_message(file, message_text, labelId);
-    cout << "Insert Aktuell sida " << resourceId << endl;
-    labelId++;
+    identifier = "Aktuell sida";
 
-    speaker->play(message_text.c_str());
+    /*
+     * try inserting ogg audio -> expect successful insert
+     */
+
+    if (!speaker->hasOggAudio(identifier.c_str()))
+    {
+        // add ogg audio to database
+        char *data = NULL;
+        int size = readData(file, &data);
+        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
+        free(data);
+        assert(result);
+    }
+    assert(speaker->hasOggAudio(identifier.c_str()));
+
+    // play added audio
+    speaker->play(identifier.c_str());
+    do { sleep(1); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
+    /*
+     * try inserting audio again with different identifier -> expect succussful insert
+     */
+
+    identifier = "aktuell Sida";
+    if (!speaker->hasOggAudio(identifier.c_str()))
+    {
+        // add ogg audio to database
+        char *data = NULL;
+        int size = readData(file, &data);
+        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
+        free(data);
+        assert(result);
+    }
+    assert(speaker->hasOggAudio(identifier.c_str()));
+
+    // play added audio
+    speaker->play(identifier.c_str());
+    do { sleep(1); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
+    /*
+     * try inserting audio again with different identifier -> expect succussful insert
+     */
+
+    identifier = "Aktuell Sida";
+    if (!speaker->hasOggAudio(identifier.c_str()))
+    {
+        // add ogg audio to database
+        char *data = NULL;
+        int size = readData(file, &data);
+        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
+        free(data);
+        assert(result);
+    }
+    assert(speaker->hasOggAudio(identifier.c_str()));
+
+    // play added audio
+    speaker->play(identifier.c_str());
     do { sleep(1); } while (speaker->isSpeaking());
     assert(narratorDone);
 

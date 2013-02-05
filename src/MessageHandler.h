@@ -45,6 +45,7 @@ class MessageHandler
         string currentLanguage;
 
         int mCurrentTagid;
+        long getNextIdValue(const Message &msg);
 
         // adds/updates a message in the database, returns id if success -1 if not
         long checkMessage(const Message &msg);
