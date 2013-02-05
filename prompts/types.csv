@@ -119,3 +119,4 @@
 
 3000;prompt;"longpause"
 3001;prompt;"shortpause"
+3002;prompt;"wait"

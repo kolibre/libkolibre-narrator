@@ -66,6 +66,7 @@ class Narrator
         void playResource(string str, string cls, int id);
         void playLongpause();
         void playShortpause();
+        void playWait();
 
         void stop();
         void printMessages();

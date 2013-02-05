@@ -612,6 +612,14 @@ void Narrator::playShortpause()
 }
 
 /**
+ * Play wait jingle
+ */
+void Narrator::playWait()
+{
+    play(_N("wait"));
+}
+
+/**
  * Narrate date
  *
  * @param day Day of the month
