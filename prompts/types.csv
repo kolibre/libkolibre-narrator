@@ -112,3 +112,10 @@
 2029;number;"hundred"
 2030;number;"one thousand"
 2031;number;"thousand"
+
+#
+# Special prompts
+#
+
+3000;prompt;"longpause"
+3001;prompt;"shortpause"

@@ -596,6 +596,22 @@ void Narrator::playDuration(long seconds)
 }
 
 /**
+ * Keep a long pause
+ */
+void Narrator::playLongpause()
+{
+    play(_N("longpause"));
+}
+
+/**
+ * Keep a short pause
+ */
+void Narrator::playShortpause()
+{
+    play(_N("shortpause"));
+}
+
+/**
  * Narrate date
  *
  * @param day Day of the month

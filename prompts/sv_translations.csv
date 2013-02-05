@@ -117,3 +117,10 @@
 "hundred";"hundra";"100"
 "one thousand";"ett tusen";"1000-ett"
 "thousand";"tusen";"1000"
+
+#
+# Special prompts
+#
+
+"longpause";"longpause"
+"shortpause";"shortpause"

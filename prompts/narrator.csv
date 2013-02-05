@@ -112,3 +112,10 @@
 "hundred"
 "one thousand"
 "thousand"
+
+#
+# Special prompts
+#
+
+"longpause"
+"shortpause"

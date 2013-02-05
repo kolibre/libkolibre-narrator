@@ -116,3 +116,10 @@
 "hundred";"sataa";"100-a"
 "one thousand";"tuhat";"1000"
 "thousand";"tuhatta";"1000-a"
+
+#
+# Special prompts
+#
+
+"longpause";"longpause"
+"shortpause";"shortpause"
