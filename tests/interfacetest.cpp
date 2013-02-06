@@ -167,6 +167,22 @@ int main(int argc, char **argv)
     do { sleep(sleepDuration); } while (speaker->isSpeaking());
     assert(narratorDone);
 
+    // test play pauses
+    narratorDone = false;
+    speaker->playLongpause();
+    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    assert(narratorDone);
+    narratorDone = false;
+    speaker->playShortpause();
+    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
+    // test play wait jingle
+    narratorDone = false;
+    speaker->playWait();
+    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
     //void setParameter(const string &key, const string &value);
 
     // test set push command finished
