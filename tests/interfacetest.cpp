@@ -188,6 +188,20 @@ int main(int argc, char **argv)
     do { sleep(sleepDuration); } while (speaker->isSpeaking());
     assert(narratorDone);
 
+    /*
+     * spell interface
+     */
+
+    // test spell
+    narratorDone = false;
+    speaker->spell("aBcXyZ012890");
+    speaker->spell("http://google.com");
+    speaker->spell("info@kolibre.org");
+    speaker->spell("1.2.3~4");
+    speaker->spell("+5 -6");
+    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
     //void setParameter(const string &key, const string &value);
 
     // test set push command finished

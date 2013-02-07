@@ -32,6 +32,9 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 #include <iostream>
+#include <algorithm>
+#include <cstdlib>
+#include <sstream>
 
 using namespace std;
 
@@ -695,6 +698,75 @@ void Narrator::playShortpause()
 void Narrator::playWait()
 {
     play(_N("wait"));
+}
+
+/**
+ * Spell word character by character
+ *
+ * The following characters are supported
+ * letters: a-z and A-Z
+ * numbers: 0-9
+ * symbols: ! # % * + , - . / : ; ? @ _ ~
+ */
+void Narrator::spell(string word)
+{
+    // transform each character to upper case
+    std::transform(word.begin(), word.end(), word.begin(), ::toupper);
+    LOG4CXX_DEBUG(narratorLog, "spelling word '" << word << "'");
+
+    string::iterator it;
+    for (it=word.begin(); it<word.end(); it++)
+    {
+        char c = char(*it);
+        stringstream ss;
+        string s;
+        ss << c;
+        ss >> s;
+
+        // char is a number in range 0-9
+        if(c >= 48 && c <= 57)
+        {
+            int number = atoi(&c);
+            play(number);
+            LOG4CXX_DEBUG(narratorLog, "number '" << number << "'");
+        }
+        // char is a letter in range A-Z
+        else if(c >= 65 && c <= 90)
+        {
+            LOG4CXX_DEBUG(narratorLog, "letter '" << c << "'");
+            playResource(s, "letter");
+        }
+        else
+        {
+            switch(c)
+            {
+                case 32: // space
+                    playShortpause();
+                    break;
+                case 33: // !
+                case 35: // #
+                case 37: // %
+                case 42: // *
+                case 43: // +
+                case 44: // ,
+                case 45: // -
+                case 46: // .
+                case 47: // /
+                case 58: // :
+                case 59: // ;
+                case 63: // ?
+                case 64: // @
+                case 95: // _
+                case 126: // ~
+                    LOG4CXX_DEBUG(narratorLog, "symbol '" << c << "'");
+                    playResource(s, "letter");
+                    break;
+                default:
+                    LOG4CXX_WARN(narratorLog, "character not supported");
+                    break;
+            }
+        }
+    }
 }
 
 /**

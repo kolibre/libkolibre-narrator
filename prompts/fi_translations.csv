@@ -1,4 +1,4 @@
-# Swedish translations for the prompts in narrator package.
+# Finnish translations for the prompts in narrator package.
 # These translations may be overridden by translations provided to the build script.
 #
 # "identifier";"translation"[;"basename"]*
@@ -116,6 +116,56 @@
 "hundred";"sataa";"100-a"
 "one thousand";"tuhat";"1000"
 "thousand";"tuhatta";"1000-a"
+
+#
+# Letters and symbols
+#
+
+"A";"A"
+"B";"B"
+"C";"C"
+"D";"D"
+"E";"E"
+"F";"F"
+"G";"G"
+"H";"H"
+"I";"I"
+"J";"J"
+"K";"K"
+"L";"L"
+"M";"M"
+"N";"N"
+"O";"O"
+"P";"P"
+"Q";"Q"
+"R";"R"
+"S";"S"
+"T";"T"
+"U";"U"
+"V";"V"
+"W";"W"
+"X";"X"
+"Y";"Y"
+"Z";"Z"
+
+"!";"huutomerkki";"huutomerkki"
+"#";"ristikkomerkki";"ristikkomerkki"
+"%";"prosentti";"prosentti"
+"*";"tähti";"tahti"
+"+";"plus";"plus"
+",";"pilkku";"pilkku"
+"-";"miinus";"miinus"
+".";"piste";"piste"
+"/";"vinoviiva";"vinoviiva"
+":";"kaksoispiste";"kaksoispiste"
+";";"puolipiste";"puolipiste"
+"?";"kysymysmerkki";"kysymysmerkki"
+"@";"ät-merkki";"at-merkki"
+"_";"alaviiva";"alaviiva"
+"~";"tilde";"tilde"
+
+",";"pilkku";"pilkku"
+
 
 #
 # Special prompts

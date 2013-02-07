@@ -66,6 +66,7 @@ class Narrator
         void playLongpause();
         void playShortpause();
         void playWait();
+        void spell(string word);
 
         void stop();
         void printMessages();

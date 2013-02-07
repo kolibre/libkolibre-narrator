@@ -33,7 +33,7 @@ class Message:
 	id = None
 	key = None
 	type = None
-	types = dict({'prompt':1, 'announcement':1, 'number':1, 'date':1})
+	types = dict({'prompt':1, 'announcement':1, 'number':1, 'date':1, 'letter':1, 'symbol':1})
 	translation = None
 
 	def __init__(self,key,type,translation):
