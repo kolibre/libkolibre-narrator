@@ -156,7 +156,7 @@ int main(int argc, char **argv)
 
     // test play resource
     narratorDone = false;
-    speaker->playResource("Monday", "prompt", 1);
+    speaker->playResource("Monday", "prompt");
     do { sleep(sleepDuration); } while (speaker->isSpeaking());
     assert(narratorDone);
 

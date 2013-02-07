@@ -54,9 +54,7 @@ long MessageHandler::updateMessage(const Message &msg)
     long params = -1;
     //msg.print();
 
-    if(msg.getString() == "" ||
-            msg.getClass() == "" ||
-            msg.getId() == -1) {
+    if(msg.getString() == "" || msg.getClass() == "") {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Not enough info to add message to database '" << msg.getString() << "'");
         //msg.print();
         return -1;
@@ -240,8 +238,7 @@ long MessageHandler::checkParameter(long messageid, const MessageParameter &mp)
         return -1;
     }
 
-    if(!db->bind(1, mp.getKey().c_str()) ||
-            !db->bind(2, messageid)) {
+    if(!db->bind(1, mp.getKey().c_str()) || !db->bind(2, messageid)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -387,54 +384,19 @@ long MessageHandler::updateMessage_with_id(long messageid, const Message &msg)
     return messageid;
 }
 
-long MessageHandler::getNextIdValue(const Message &msg)
-{
-    if(!db->prepare("SELECT MAX(id) FROM message WHERE class=?")) {
-        LOG4CXX_ERROR(narratorMsgHlrLog, "Qery failed '" << db->getLasterror() << "'");
-        return -1;
-    }
-
-    if(!db->bind(1, msg.getClass().c_str())) {
-        LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
-        return -1;
-    }
-
-    DBResult result;
-    if(!db->perform(&result)) {
-        LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
-        return -1;
-    }
-
-    long nextId = 0; // start with 0
-    while(result.loadRow()) {
-        nextId = result.getInt(0);
-    }
-
-    nextId++;
-    return nextId;
-}
-
 long MessageHandler::insertMessage(const Message &msg)
 {
     int messageid = -1;
     LOG4CXX_INFO(narratorMsgHlrLog, "Inserting new message");
 
-    // determine value to use as id
-    long id = getNextIdValue(msg);
-    if(id == -1) {
-        LOG4CXX_ERROR(narratorMsgHlrLog, "Could not determine what value to use as id");
-        return -1;
-    }
-    LOG4CXX_DEBUG(narratorMsgHlrLog, "string: " << msg.getString() << ", class: " << msg.getClass() << ", id: " << id);
+    LOG4CXX_DEBUG(narratorMsgHlrLog, "string: " << msg.getString() << ", class: " << msg.getClass());
 
-    if(!db->prepare("INSERT INTO message (string, class, id) VALUES (?, ?, ?)")) {
+    if(!db->prepare("INSERT INTO message (string, class) VALUES (?, ?)")) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
     }
 
-    if(!db->bind(1, msg.getString().c_str()) ||
-            !db->bind(2, msg.getClass().c_str()) ||
-            !db->bind(3, id)) {
+    if(!db->bind(1, msg.getString().c_str()) || !db->bind(2, msg.getClass().c_str())) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -489,8 +451,7 @@ long MessageHandler::checkTranslation(long messageid, const MessageTranslation &
         return -1;
     }
 
-    if(!db->bind(1, messageid) ||
-            !db->bind(2, mt.getLanguage().c_str())) {
+    if(!db->bind(1, messageid) || !db->bind(2, mt.getLanguage().c_str())) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
         return -1;
     }

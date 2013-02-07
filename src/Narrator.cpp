@@ -535,7 +535,6 @@ void Narrator::play(const char *identifier)
 
     pi.mIdentifier = identifier;
     pi.mClass = "prompt";
-    pi.mId = -1;
     pi.vParameters = vParameters;
     vParameters.clear();
 
@@ -555,7 +554,6 @@ void Narrator::playFile(const string filepath)
 
     pi.mIdentifier = filepath;
     pi.mClass = "file";
-    pi.mId = -1;
     pi.vParameters = vParameters;
     vParameters.clear();
 
@@ -576,7 +574,6 @@ void Narrator::play(int number)
     setParameter("number", number);
     pi.mIdentifier = "{number}";
     pi.mClass = "prompt";
-    pi.mId = -1;
     pi.vParameters = vParameters;
     vParameters.clear();
 
@@ -590,16 +587,14 @@ void Narrator::play(int number)
  *
  * @param str Identifier of the prompt
  * @param cls Prompt type
- * @param id Id of the prompt (in messages db)
  *
  */
-void Narrator::playResource(string str, string cls, int id)
+void Narrator::playResource(string str, string cls)
 {
     PlaylistItem pi;
 
     pi.mIdentifier = str;
     pi.mClass = cls;
-    pi.mId = id;
     pi.vParameters = vParameters;
     vParameters.clear();
 
@@ -1068,7 +1063,7 @@ void *narrator_thread(void *narrator)
             // Get a list of MessageAudio objects to play
             Message m;
             m.setLanguage(lang);
-            m.load(pi.mIdentifier, pi.mClass, pi.mId);
+            m.load(pi.mIdentifier, pi.mClass);
             m.loadParameterValues(pi.vParameters);
             if(!m.compile() || !m.hasAudio()) {
                 LOG4CXX_ERROR(narratorLog, "Narrator translation not found: could not find audio for '" << pi.mIdentifier << "'");

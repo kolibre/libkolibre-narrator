@@ -102,7 +102,7 @@ DB::~DB()
 bool DB::verifyDBStructure()
 {
     if(!prepare("create table if not exists message \
-                (string TEXT, class TEXT, id INT, UNIQUE(class, id))")) {
+                (string TEXT, class TEXT, UNIQUE(string, class))")) {
         LOG4CXX_ERROR(narratorDbLog, "Could not create/open message table: ' " << getLasterror() << "'");
         return false;
     }

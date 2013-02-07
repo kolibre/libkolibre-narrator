@@ -188,7 +188,7 @@ class Message {
         Message(DB *db, Message *parent);
         ~Message();
 
-        bool load(string identifier, string cls, int id);
+        bool load(string identifier, string cls);
 
         // compiles the audio, inserting parameters and submessages in the audioqueue
         bool compile();
@@ -211,8 +211,6 @@ class Message {
         // Getters and setters
         void setLanguage(string lang) { mLanguage = lang; };
         const string &getLanguage() { return mLanguage; };
-        void setId(long id) { mId = id; };
-        long getId() const { return mId; };
         void setString(string str) { mString = str; };
         const string &getString() const { return mString; };
         void setClass(string cl) { mClass = cl; };
@@ -235,7 +233,6 @@ class Message {
         void print() const;
 
     private:
-        long mId;
         string mLanguage;
         string mString;
         string mClass;

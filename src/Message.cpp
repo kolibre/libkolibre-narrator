@@ -43,7 +43,6 @@ Message::Message()
 
     bClosedb = false;
     vParameters.empty();
-    mId = 0;
     bHasTranslation = false;
     mLanguage = "unknown";
 
@@ -55,7 +54,6 @@ Message::Message(DB *dbptr, Message *parent)
     bClosedb = false;
     pParent = parent;
 
-    mId = 0;
     bHasTranslation = false;
 
     if(pParent) {
@@ -89,21 +87,20 @@ bool Message::openDB()
     return true;
 }
 
-bool Message::load(string identifier, string cls, int id)
+bool Message::load(string identifier, string cls)
 {
     if(!db) openDB();
-    //LOG4CXX_DEBUG(narratorMsgLog, "Loading '" << identifier << "' (class=" << cls << ", id=" << id << ") in lang " << mLanguage);
+    //LOG4CXX_DEBUG(narratorMsgLog, "Loading '" << identifier << "' (class=" << cls << ") in lang " << mLanguage);
 
     // Query the database for message
-    if(!db->prepare("select rowid, string, class, id from message where (class=? AND id=?) OR string=? group by rowid order by id=? desc")) {
+    if(!db->prepare("select rowid, string, class from message where (string=? AND class=?) OR string=? group by rowid")) {
         LOG4CXX_ERROR(narratorMsgLog, "Query failed '" << db->getLasterror() << "'");
         return false;
     }
 
-    if(!db->bind(3, identifier.c_str()) ||
-            !db->bind(1, cls.c_str()) ||
-            !db->bind(2, id) ||
-            !db->bind(4, id)) {
+    if(!db->bind(1, identifier.c_str()) ||
+            !db->bind(2, cls.c_str()) ||
+            !db->bind(3, identifier.c_str())) {
         return false;
     }
 
@@ -119,7 +116,6 @@ bool Message::load(string identifier, string cls, int id)
             messageid = result.getInt(0);
             setString(result.getText(1));
             setClass(result.getText(2));
-            setId(result.getInt(3));
         }
         //result.printRow();
         count++;
@@ -488,7 +484,7 @@ bool Message::appendMessage(string identifier, string cls)
     bool compileStatus = false;
     Message *m;
     m = new Message(db, this);
-    m->load(identifier, cls, -1);
+    m->load(identifier, cls);
     compileStatus = m->compile();
     if(compileStatus) {
         appendAudioQueue(m->getAudioQueue());

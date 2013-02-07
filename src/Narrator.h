@@ -62,7 +62,7 @@ class Narrator
         void playTime(int hour, int minute, int second);
         void playDuration(int seconds, int minutes, int hours);
         void playDuration(long seconds);
-        void playResource(string str, string cls, int id);
+        void playResource(string str, string cls);
         void playLongpause();
         void playShortpause();
         void playWait();
@@ -137,7 +137,6 @@ class Narrator
             ItemType mType;
             string mIdentifier;
             string mClass;
-            long mId;
             vector <MessageParameter>vParameters;
         };
 

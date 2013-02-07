@@ -34,16 +34,14 @@ class Message:
 	key = None
 	type = None
 	types = dict({'prompt':1, 'announcement':1, 'number':1, 'date':1})
-	serverId = None
 	translation = None
 
-	def __init__(self,key,type,serverId,translation):
+	def __init__(self,key,type,translation):
 		"""
 			constructor for class Message
 
 			@param string key => original text
 			@param string type => type of message
-			@param integer serverId => id of the message on the server
 			@param object translation => a Translation instance
 			@return object Message
 
@@ -51,7 +49,6 @@ class Message:
 		"""
 		self.key = key
 		self.type = type
-		self.serverId = serverId
 		self.translation = translation
 
 	def validate(self):
@@ -69,8 +66,6 @@ class Message:
 			return 'Error: no type set for message \'' + self.key + '\''
 		if not self.type in self.types:
 			return 'Error: invalid type value \'' + self.type + '\' for message \'' + self.key + '\''
-		if self.serverId == None:
-			return 'Error: no serverId set for message \'' + self.key + '\''
 		if self.translation == None:
 			return 'Error: no translation set for message \'' + self.key + '\''
 		valid = self.translation.validate()
@@ -88,8 +83,8 @@ class Message:
 			returns True and sets id to the value obtained from the database
 		"""
 		if not self.exists(cursor):
-			t = (self.key, self.type, self.serverId)
-			cursor.execute('INSERT INTO message values (?,?,?)', t)
+			t = (self.key, self.type)
+			cursor.execute('INSERT INTO message values (?,?)', t)
 			self.id = cursor.lastrowid
 		return self.translation.insert(cursor, self.id);
 
@@ -103,8 +98,8 @@ class Message:
 			returns True if the instance already exist in the database and sets id to the value obtained from the database,
 			otherwise returns False
 		"""
-		t = (self.key, self.type, self.serverId)
-		cursor.execute('SELECT rowid FROM message WHERE string = ? AND class = ? AND id = ?', t)
+		t = (self.key, self.type)
+		cursor.execute('SELECT rowid FROM message WHERE string = ? AND class = ?', t)
 		row = cursor.fetchone()
 		if not row == None:
 			self.id = row[0]

@@ -211,17 +211,15 @@ if __name__ == '__main__':
 			sys.exit(1)
 
 	# list duplicates in lists
-	messageDuplicates = listHasDuplicates([ x[2] for x in msgs if len(x) >= 3 ], messageFile)
-	messageIdDuplicates = listHasDuplicates([ x[0] for x in msgs ], messageFile)
+	messageDuplicates = listHasDuplicates([ x[1] for x in msgs if len(x) >= 2 ], messageFile)
 	translationDuplicates = listHasDuplicates( [x[0] for x in trls ], translationFile)
 	promptDuplicates = listHasDuplicates([ x[0] for x in prompts ], promptFile)
 	narratorPromptDuplicates = listHasDuplicates([ x[0] for x in narratorPrompts ], narratorPromptFile)
-	narratorTypeDuplicates = listHasDuplicates([ x[2] for x in narratorTypes if len(x) >= 3 ], narratorTypeFile)
-	narratorTypeIdDuplicates = listHasDuplicates([ x[0] for x in narratorTypes ], narratorTypeFile)
+	narratorTypeDuplicates = listHasDuplicates([ x[1] for x in narratorTypes if len(x) >= 2 ], narratorTypeFile)
 	narratorTranslationDuplicates = listHasDuplicates([ x[0] for x in narratorTranslations ], narratorTranslationFile)
 
 	# exit if duplicates occurs
-	if messageDuplicates or messageIdDuplicates or translationDuplicates or promptDuplicates or narratorPromptDuplicates or narratorTypeDuplicates or narratorTypeIdDuplicates or narratorTranslationDuplicates:
+	if messageDuplicates or translationDuplicates or promptDuplicates or narratorPromptDuplicates or narratorTypeDuplicates or narratorTranslationDuplicates:
 		sys.exit(2)
 
 	# combine narratorPrompts and prompts, remove duplicates
@@ -231,24 +229,24 @@ if __name__ == '__main__':
 			narratorPrompts.append(prompt)
 	prompts = narratorPrompts
 
-	# combine narratorTypes and messages, override existing narrator types with user's messages
+	# combine narratorTypes and messages, remove duplicates
 	for msg in msgs:
-		if len(msg) >= 3:
-			index = [i for i,x in enumerate(narratorTypes) if x[1] == msg[1] and x[2] == msg[2]]
-			if len(index) == 1:
-				narratorTypes[index[0]] = msg
-			elif len(index) == 0:
-				narratorTypes.append(msg)
+		if len(msg) < 2:
+			continue
+		index = [i for i,x in enumerate(narratorTypes) if x[0] == msg[0] and x[1] == msg[1]]
+		if len(index) == 0:
+			narratorTypes.append(msg)
 	msgs = narratorTypes
 
 	# combine narratorTranslations and translations, override existing narrator translations with user's translations
 	for trl in trls:
-		if len(trl) >= 2:
-			index = [i for i,x in enumerate(narratorTranslations) if x[0] == trl[0]]
-			if len(index) == 1:
-				narratorTranslations[index[0]] = trl
-			elif len(index) == 0:
-				narratorTranslations.append(trl)
+		if len(trl) < 2:
+			continue
+		index = [i for i,x in enumerate(narratorTranslations) if x[0] == trl[0]]
+		if len(index) == 1:
+			narratorTranslations[index[0]] = trl
+		elif len(index) == 0:
+			narratorTranslations.append(trl)
 	trls = narratorTranslations
 
 	messages = []         # list of Message instances
@@ -259,21 +257,23 @@ if __name__ == '__main__':
 		print tmpAudioDir
 		# generate a list of translations
 		for trl in trls:
-			if len(trl) >= 2:
-				basenames = trl[2:len(trl)]
-				translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, tmpAudioDir))
-	
+			if len(trl) < 2:
+				continue
+			basenames = trl[2:len(trl)]
+			translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, tmpAudioDir))
+
 		# generate a list of messages
 		for msg in msgs:
-			if len(msg) >= 3:
-				translation = [translation for translation in translations if translation.key == msg[2]]
-				if len(translation) == 1:
-					messages.append(Message.Message(msg[2], msg[1], msg[0], translation[0]))
-				else:
-					sys.stderr.write('Error: no \'' + langCode + '\' translation found for message \'' + msg[2] + '\'\n')
-					sys.stderr.write('Tip: You probably just have to add it to ' + translationFile + '\n')
-					sys.exit(2)
-	
+			if len(msg) < 2:
+				continue
+			translation = [translation for translation in translations if translation.key == msg[1]]
+			if len(translation) == 1:
+				messages.append(Message.Message(msg[1], msg[0], translation[0]))
+			else:
+				sys.stderr.write('Error: no \'' + langCode + '\' translation found for message \'' + msg[1] + '\'\n')
+				sys.stderr.write('Tip: You probably just have to add it to ' + translationFile + '\n')
+				sys.exit(2)
+
 		# generate a list of message to include in build
 		for prompt in prompts:
 			message = [message for message in messages if message.key == prompt[0]]
@@ -283,7 +283,7 @@ if __name__ == '__main__':
 				sys.stderr.write('Error: no message with identifier \'' + prompt[0] + '\' found in ' + messageFile + '\n')
 				sys.stderr.write('Tip: You probably just have to add it to ' + messageFile + '\n')
 				sys.exit(2)
-	
+
 		# create ogg audio for messages to include in build
 		if buildDB:
 			oggcreateFailed = False
@@ -293,36 +293,36 @@ if __name__ == '__main__':
 					oggcreateFailed = True
 			if oggcreateFailed:
 				sys.exit(2)
-	
+
 			# validate messages to include in build
 			for message in promptmessages:
 				valid = message.validate()
 				if valid != True:
 					print valid
 					sys.exit(2)
-	
+
 		if buildDB:
 			# connect to sql database
 			sql = sqlite3.connect(outputFile)
 			sql.text_factory = str
 			cursor = sql.cursor()
-	
+
 			# create table message
-			cursor.execute('CREATE TABLE IF NOT EXISTS message (string TEXT, class TEXT, id INT, UNIQUE(class, id))')
+			cursor.execute('CREATE TABLE IF NOT EXISTS message (string TEXT, class TEXT, UNIQUE(string, class))')
 			# create table messageparameter
 			cursor.execute('CREATE TABLE IF NOT EXISTS messageparameter (message_id INT, key TEXT, type TEXT)')
 			# create table messagetranslation
 			cursor.execute('CREATE TABLE IF NOT EXISTS messagetranslation (message_id INT, translation TEXT, language TEXT, audiotags TEXT)')
 			# create table messageaudio
 			cursor.execute('CREATE TABLE IF NOT EXISTS messageaudio (translation_id INT, tagid INT, text TEXT, size INT, length INT, data BLOB, md5 TEXT)')
-	
+
 			# insert data in db
 			for message in promptmessages:
 				message.insert(cursor)
-	
+
 			# save (commit) the changes
 			sql.commit()
-	
+
 			# close cursor
 			cursor.close()
 		else:
