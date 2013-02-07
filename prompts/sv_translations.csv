@@ -63,8 +63,11 @@
 
 "{dayname} {date} of {month} {year} {yearnum}";"den {date:date(date)} {month:date(month)} {year:date(year)}"
 "{hour} {hour12} {minute} {second} {ampm}";"klockan {hour:number} {minute:date(minute)} {second:date(second)}"
-#"{year}";"{year:number}"
-#"year";"år"
+"am";""
+"pm";""
+"year {year}";"år {year:number}"
+"{year}";"{year:number}"
+"year";"år"
 
 "one hour";"en timme"
 "{2} hours";"{2:number} timmar"
@@ -72,9 +75,15 @@
 "{2} minutes";"{2:number} minuter"
 "one second";"en sekund"
 "{2} seconds";"{2:number} sekunder"
-#"minutes"
-#"hours"
-#"seconds"
+"hours";"timmar"
+"minutes";"minuter"
+"seconds";"sekunder"
+"one day";"en dag"
+"{2} days";"{2:number} dagar"
+"one month";"en månad"
+"{2} months";"{2:number} månader"
+"one year";"ett år"
+"{2} years";"{2:number} år"
 "and";"och"
 
 #

@@ -58,8 +58,11 @@
 
 "{dayname} {date} of {month} {year} {yearnum}"
 "{hour} {hour12} {minute} {second} {ampm}"
-#"{year}"
-#"year"
+#"am"
+#"pm"
+#"year {year}"
+"{year}"
+"year"
 
 "one hour"
 "{2} hours"
@@ -67,9 +70,15 @@
 "{2} minutes"
 "one second"
 "{2} seconds"
-#"hours"
-#"minutes"
-#"seconds"
+"hours"
+"minutes"
+"seconds"
+"one day"
+"{2} days"
+"one month"
+"{2} months"
+"one year"
+"{2} years"
 "and"
 
 #

@@ -62,8 +62,11 @@
 
 "{dayname} {date} of {month} {year} {yearnum}";"{date:date(date)} päivä {month:date(month)} {year:date(year)}"
 "{hour} {hour12} {minute} {second} {ampm}";"kello {hour:number} {minute:date(minute)} {second:date(second)}"
-#"{year}";"{year:number}"
-#"year";"Vuonna"
+"am";""
+"pm";""
+"year {year}";"vuonna {year:number}"
+"{year}";"{year:number}"
+"year";"vuonna"
 
 "one hour";"yksi tunti"
 "{2} hours";"{2:number} tuntia"
@@ -71,9 +74,15 @@
 "{2} minutes";"{2:number} minuuttia"
 "one second";"yksi sekunti"
 "{2} seconds";"{2:number} sekuntia"
-#"hours"
-#"minutes"
-#"seconds"
+"hours";"tuntia"
+"minutes";"minuuttia"
+"seconds";"sekuntia"
+"one day";"yksi päivä"
+"{2} days";"{2:number} päivää"
+"one month";"yksi kukausi"
+"{2} months";"{2:number} kuukautta"
+"one year";"yksi vuosi"
+"{2} years";"{2:number} vuotta"
 "and";"ja"
 
 #
