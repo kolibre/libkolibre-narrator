@@ -33,12 +33,20 @@ def parse(file):
 	"""
 	if not path.exists(file):
 		return -1
-	lines = csv.reader(open(file, 'rb'), delimiter=';', quotechar='"')
+
+	# read file
+	f = open(file, 'rb')
+	lines = f.readlines()
+	f.close()
+
+	# skip comments in input
+	input = [ line for line in lines if line[0] != '#']
+
+	# parse input with csv reader
+	lines = csv.reader(input, delimiter=';', quotechar='"')
 	data = []
 	for line in lines:
 		if len(line) == 0:
-			continue
-		if line[0][0] == '#':
 			continue
 		data.append(line)
 	return data
