@@ -78,7 +78,7 @@ prompt;"and"
 
 prompt;"plus"
 prompt;"minus"
-#number;"{number}"
+number;"{number}"
 number;"zero"
 number;"one"
 number;"one_special"

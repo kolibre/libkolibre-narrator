@@ -82,7 +82,7 @@
 
 "plus";"plus"
 "minus";"miinus"
-#"{number}";"{number:number}"
+"{number}";"{number:number}"
 "zero";"nolla";"0"
 "one";"yksi";"1"
 "one_special";"yksi";"1"

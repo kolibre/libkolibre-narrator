@@ -83,7 +83,7 @@
 
 "plus";"..plus.."
 "minus";"..minus.."
-#"{number}";"{number:number}"
+"{number}";"{number:number}"
 "zero";"noll";"0"
 "one";"ett";"1"
 "one_special";"en";"1-en"

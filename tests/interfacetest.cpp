@@ -120,6 +120,11 @@ int main(int argc, char **argv)
     do { sleep(sleepDuration); } while (speaker->isSpeaking());
     assert(narratorDone);
 
+    narratorDone = false;
+    speaker->play(1);
+    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    assert(narratorDone);
+
     // test play file
     narratorDone = false;
     char* srcdir = getenv("srcdir");

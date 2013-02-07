@@ -573,7 +573,7 @@ void Narrator::play(int number)
 
     setParameter("number", number);
     pi.mIdentifier = "{number}";
-    pi.mClass = "prompt";
+    pi.mClass = "number";
     pi.vParameters = vParameters;
     vParameters.clear();
 
