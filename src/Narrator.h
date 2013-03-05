@@ -31,11 +31,11 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <boost/signals2.hpp>
 
 #define NARRATOR_MIN_TEMPO 0.5
-#define NARRATOR_MAX_TEMPO 1.5
+#define NARRATOR_MAX_TEMPO 2.0
 #define NARRATOR_MIN_PITCH 0.5
-#define NARRATOR_MAX_PITCH 1.5
+#define NARRATOR_MAX_PITCH 2.0
 #define NARRATOR_MIN_VOLUMEGAIN 0.5
-#define NARRATOR_MAX_VOLUMEGAIN 1.5
+#define NARRATOR_MAX_VOLUMEGAIN 2.0
 
 using namespace std;
 
