@@ -74,8 +74,6 @@ DX_INIT_DOXYGEN([libkolibre-narrator], doxygen.cfg, [doxygen-doc])
 
 # Checks for libraries.
 
-AC_CHECK_LIB(gst, sqlite3)
-
 dnl -----------------------------------------------
 dnl check for log4cxx
 dnl -----------------------------------------------
