@@ -418,7 +418,7 @@ float Narrator::getTempo()
 /**
  * Set the playback tempo
  *
- * @param value tempo (between MAX_TEMPO and MIN_TEMPO)
+ * @param value tempo (between NARRATOR_MAX_TEMPO and NARRATOR_MIN_TEMPO)
  */
 void Narrator::setTempo(float value)
 {
