@@ -61,9 +61,6 @@ AC_SUBST(VERSION_INFO)
 LT_INIT
 AC_PROG_CXX
 AC_LANG([C++])
-AX_BOOST_BASE
-AC_CHECK_DECL([HAVE_BOOST], [], [AC_MSG_ERROR([**autoconf-archive is needed to build libkolibre-narrator])])
-AX_BOOST_SIGNALS
 AC_PROG_CC
 ACX_PTHREAD
 
@@ -75,14 +72,18 @@ DX_INIT_DOXYGEN([libkolibre-narrator], doxygen.cfg, [doxygen-doc])
 # Checks for libraries.
 
 dnl -----------------------------------------------
+dnl check for boost libraries
+dnl -----------------------------------------------
+
+AX_BOOST_BASE
+AX_BOOST_SIGNALS
+AC_CHECK_DECL([HAVE_BOOST_SIGNALS], [], [AC_MSG_ERROR([Library requirement (Boost::Signals) were not met])])
+
+dnl -----------------------------------------------
 dnl check for log4cxx
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(LOG4CXX, liblog4cxx >= 0.10.0, HAVE_LOG4CXX=yes, HAVE_LOG4CXX=no)
-
-if (test "x$HAVE_LOG4CXX" = "xno") then
-    AC_MSG_ERROR([**liblog4cxx >= 0.10.0 is needed to build libkolibre-narrator **])
-fi
+PKG_CHECK_MODULES(LOG4CXX, liblog4cxx >= 0.10.0)
 
 AC_SUBST(LOG4CXX_CFLAGS)
 AC_SUBST(LOG4CXX_LIBS)
@@ -91,11 +92,7 @@ dnl -----------------------------------------------
 dnl check for vorbisfile
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(VORBISFILE, vorbisfile >= 1.2.0, HAVE_VORBISFILE=yes, HAVE_VORBISFILE=no)
-
-if (test "x$HAVE_VORBISFILE" = "xno") then
-    AC_MSG_ERROR([**libvorbisfile >= 1.2.0 is needed to build libkolibre-narrator **])
-fi
+PKG_CHECK_MODULES(VORBISFILE, vorbisfile >= 1.2.0)
 
 AC_SUBST(VORBISFILE_CFLAGS)
 AC_SUBST(VORBISFILE_LIBS)
@@ -104,11 +101,7 @@ dnl -----------------------------------------------
 dnl Check for portaudio
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(PORTAUDIO, portaudio-2.0 >= 19, HAVE_PORTAUDIO=yes, HAVE_PORTAUDIO=no)
-
-if (test "x$HAVE_PORTAUDIO" = "xno") then
-    AC_MSG_ERROR([**libportaudio >= 19 is needed to build libkolibre-narrator **])
-fi
+PKG_CHECK_MODULES(PORTAUDIO, portaudio-2.0 >= 19)
 
 AC_SUBST(PORTAUDIO_LIBS)
 AC_SUBST(PORTAUDIO_CFLAGS)
@@ -117,11 +110,7 @@ dnl -----------------------------------------------
 dnl Check for sqlite3
 dnl -----------------------------------------------
 
-PKG_CHECK_MODULES(SQLITE3, sqlite3 >= 3.5, HAVE_SQLITE3=yes, HAVE_SQLITE3=no)
-
-if (test "x$HAVE_SQLITE3" = "xno") then
-   AC_MSG_ERROR([**libsqlite3 >= 3.5 is needed to build libkolibre-narrator **])
-fi
+PKG_CHECK_MODULES(SQLITE3, sqlite3 >= 3.5)
 
 AC_SUBST(SQLITE3_LIBS)
 AC_SUBST(SQLITE3_CFLAGS)
