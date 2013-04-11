@@ -167,7 +167,6 @@ AS_IF([test "x$with_utils" != "xno"],
 [AC_CONFIG_SUBDIRS([utils])])
 
 AC_CONFIG_FILES([Makefile
-                 doxygen.cfg
                  libkolibre-narrator.pc
                  src/Makefile
                  tests/Makefile])
