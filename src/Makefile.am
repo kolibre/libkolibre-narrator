@@ -25,7 +25,7 @@ library_include_HEADERS = Narrator.h
 
 libkolibre_narrator_la_SOURCES = Narrator.cpp Message.cpp OggStream.cpp Filter.cpp RingBuffer.cpp PortAudio.cpp MessageHandler.cpp Db.cpp
 libkolibre_narrator_la_LIBADD = @LOG4CXX_LIBS@ @VORBISFILE_LIBS@ @PORTAUDIO_LIBS@ @SQLITE3_LIBS@ @SOUNDTOUCH_LIBS@
-libkolibre_narrator_la_LDFLAGS = @BOOST_LDFLAGS@ -version-info $(VERSION_INFO)
-libkolibre_narrator_la_CPPFLAGS = @LOG4CXX_CFLAGS@ @VORBISFILE_CFLAGS@ @PORTAUDIO_CFLAGS@ @SOUNDTOUCH_CFLAGS@ @BOOST_CPPFLAGS@
+libkolibre_narrator_la_LDFLAGS = -version-info $(VERSION_INFO)
+libkolibre_narrator_la_CPPFLAGS = @LOG4CXX_CFLAGS@ @VORBISFILE_CFLAGS@ @PORTAUDIO_CFLAGS@ @SOUNDTOUCH_CFLAGS@
 
 EXTRA_DIST = OggStream.h PortAudio.h Filter.h RingBuffer.h Message.h MessageHandler.h Db.h
