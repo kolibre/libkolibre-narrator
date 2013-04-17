@@ -106,6 +106,7 @@ if __name__ == '__main__':
 	langCode = None
 	outputFile = None
 	append = False
+	useAudioDir = False
 	audioDir = '/tmp'
 	buildDB = True
 	for opt, value in opts:
@@ -125,6 +126,7 @@ if __name__ == '__main__':
 		elif opt in ('-a', '--append'):
 			append = True
 		elif opt in ('-i', '--indir'):
+			useAudioDir = True
 			audioDir = value
 		elif opt in ('-u', '--unarrator'):
 			buildDB = False
@@ -170,7 +172,7 @@ if __name__ == '__main__':
 	if not path.exists(promptFile):
 		sys.stderr.write('prompt file ' + promptFile + ' does not exist\n')
 		sys.exit(1)
-	if not path.exists(audioDir):
+	if useAudioDir and not path.exists(audioDir):
 		sys.stderr.write('directory ' + audioDir + ' does not exist\n')
 		sys.exit(1)
 
@@ -253,14 +255,16 @@ if __name__ == '__main__':
 	translations = []     # list of Translation instances
 	promptmessages = []   # list of Messages to include in build
 	try:
-		tmpAudioDir = tempfile.mkdtemp()
-		print tmpAudioDir
+		if not useAudioDir:
+			audioDir = tempfile.mkdtemp()
+			print "Creating temp folder " + audioDir + " for storing generated audio"
+
 		# generate a list of translations
 		for trl in trls:
 			if len(trl) < 2:
 				continue
 			basenames = trl[2:len(trl)]
-			translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, tmpAudioDir))
+			translations.append(Translation.Translation(langCode, trl[0], trl[1], basenames, audioDir))
 
 		# generate a list of messages
 		for msg in msgs:
@@ -329,5 +333,6 @@ if __name__ == '__main__':
 			for message in promptmessages:
 				message.resample(unarratorDir, langCode)
 	finally:
-		print "Removing temp folder: " + tmpAudioDir
-		shutil.rmtree(tmpAudioDir)
+		if not useAudioDir:
+			print "Removing temp folder: " + audioDir
+			shutil.rmtree(audioDir)
