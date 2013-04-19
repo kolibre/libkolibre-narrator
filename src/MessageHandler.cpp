@@ -38,7 +38,7 @@ MessageHandler::MessageHandler()
     string messagedb = Narrator::Instance()->getDatabasePath();
 
     // Setup database connection
-    db = new DB(messagedb);
+    db = new narrator::DB(messagedb);
 
     if(!db->connect()) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Could not open database " << messagedb << " '" << db->getLasterror() << "'");

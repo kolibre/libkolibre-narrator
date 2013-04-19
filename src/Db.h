@@ -17,8 +17,8 @@ You should have received a copy of the GNU Lesser General Public License
 along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _DB_H
-#define _DB_H
+#ifndef _NARRATOR_DB_H
+#define _NARRATOR_DB_H
 
 #include <sqlite3.h>
 #include <string>
@@ -26,6 +26,8 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 class DBResult;
+
+namespace narrator {
 
 class DB {
     public:
@@ -80,6 +82,8 @@ class DB {
         bool bClosedb;
         int rc;
 };
+
+}
 
 class DBResult {
     public:

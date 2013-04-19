@@ -51,6 +51,7 @@ int busyHandler(void *pArg1, int iPriorCalls)
     return 0;
 }
 
+namespace narrator {
 
 DB::DB(const string &database)
 {
@@ -289,6 +290,7 @@ bool DB::perform(DBResult *result)
     return ret;
 }
 
+}
 
 DBResult::DBResult()
 {

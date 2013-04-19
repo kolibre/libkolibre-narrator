@@ -48,7 +48,7 @@ Message::Message()
 
 }
 
-Message::Message(DB *dbptr, Message *parent)
+Message::Message(narrator::DB *dbptr, Message *parent)
 {
     db = dbptr;
     bClosedb = false;
@@ -76,7 +76,7 @@ Message::~Message()
 bool Message::openDB()
 {
     string messagedb = Narrator::Instance()->getDatabasePath();
-    db = new DB(messagedb);
+    db = new narrator::DB(messagedb);
 
     if(!db->connect()) {
         LOG4CXX_ERROR(narratorMsgLog, "Could not open database " << messagedb << " '" << db->getLasterror() << "'");
@@ -1016,7 +1016,7 @@ size_t MessageAudio::read(void *ptr, size_t size, size_t nmemb)
     if(pBlob == NULL) {
         if(pDBHandle == NULL) {
             string messagedb = Narrator::Instance()->getDatabasePath();
-            db = new DB(messagedb);
+            db = new narrator::DB(messagedb);
             if(!db->connect()) {
                 LOG4CXX_ERROR(narratorMsgLog, "Could not open database " << messagedb << " '" << db->getLasterror() << "'");
                 return 0;

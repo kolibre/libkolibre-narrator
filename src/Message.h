@@ -102,7 +102,7 @@ class MessageAudio {
         int mCurrentPos;
         sqlite3_blob *pBlob;
         sqlite3 *pDBHandle;
-        DB *db;
+        narrator::DB *db;
         //string mDatabase;
 };
 
@@ -185,7 +185,7 @@ class MessageParameter {
 class Message {
     public:
         Message();
-        Message(DB *db, Message *parent);
+        Message(narrator::DB *db, Message *parent);
         ~Message();
 
         bool load(string identifier, string cls);
@@ -247,7 +247,7 @@ class Message {
         int split(const string& input, const string &delimiter, vector<string>&results, bool includeEmpties);
 
         bool openDB();
-        DB *db;
+        narrator::DB *db;
         bool bClosedb;
 };
 

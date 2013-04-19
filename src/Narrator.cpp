@@ -214,7 +214,7 @@ void Narrator::setDatabasePath(string path)
     pthread_mutex_unlock(narratorMutex);
 
     // Verify that the database is initialized
-    DB db(path);
+    narrator::DB db(path);
     db.connect();
     if(!db.verifyDBStructure()){
         LOG4CXX_ERROR(narratorLog, "The database could could not be verified: " << path);

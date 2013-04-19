@@ -37,7 +37,7 @@ class MessageHandler
         long findMessage(const Message &msg);
 
     private:
-        DB *db;
+        narrator::DB *db;
 
         Message *currentMessage;
         MessageTranslation *currentMessageTranslation;
