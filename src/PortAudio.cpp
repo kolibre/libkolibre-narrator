@@ -190,6 +190,7 @@ unsigned int PortAudio::getWriteAvailable()
 {
     size_t writeAvailable = 0;
     int waitCount = 0;
+    int failCount = 0;
 
     while( writeAvailable == 0 ) {
         writeAvailable = ringbuf.getWriteAvailable();
@@ -204,7 +205,7 @@ unsigned int PortAudio::getWriteAvailable()
 
             mError = Pa_AbortStream(pStream);
             // If abortstream fails, try reopening
-            if(mError != paNoError && mError != paStreamIsStopped) {
+            if(failCount++ > 0 || ( mError != paNoError && mError != paStreamIsStopped )) {
                 LOG4CXX_ERROR(narratorPaLog, "Failed to abort stream, trying to close and reopen: " << Pa_GetErrorText(mError));
 
                 mError = Pa_CloseStream(pStream);
