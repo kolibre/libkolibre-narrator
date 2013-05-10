@@ -56,59 +56,87 @@ int main(int argc, char **argv)
     speaker->setDatabasePath(argv[2]);
     assert(speaker->getDatabasePath() == argv[2]);
 
-    // test set gain
-    speaker->setVolumeGain(1.5);
-    assert(speaker->getVolumeGain() == 1.5);
-    speaker->setVolumeGain(2);
-    assert(speaker->getVolumeGain() == 1.5);
-    speaker->setVolumeGain(0.5);
-    assert(speaker->getVolumeGain() == 0.5);
-    speaker->setVolumeGain(0);
-    assert(speaker->getVolumeGain() == 0.5);
-    speaker->adjustVolumeGain(0.5);
-    assert(speaker->getVolumeGain() == 1.0);
-    speaker->adjustVolumeGain(-1);
-    assert(speaker->getVolumeGain() == 0.5);
-    speaker->adjustVolumeGain(2);
-    assert(speaker->getVolumeGain() == 1.5);
-    speaker->setVolumeGain(1);
-    assert(speaker->getVolumeGain() == 1.0);
+    float defaultValue;
+    float max, gtmax, ltmax;
+    float min, gtmin, ltmin;
 
-    // test set tempo
-    speaker->setTempo(1.5);
-    assert(speaker->getTempo() == 1.5);
-    speaker->setTempo(2);
-    assert(speaker->getTempo() == 1.5);
-    speaker->setTempo(0.5);
-    assert(speaker->getTempo() == 0.5);
-    speaker->setTempo(0);
-    assert(speaker->getTempo() == 0.5);
-    speaker->adjustTempo(0.5);
-    assert(speaker->getTempo() == 1.0);
-    speaker->adjustTempo(-1);
-    assert(speaker->getTempo() == 0.5);
-    speaker->adjustTempo(2);
-    assert(speaker->getTempo() == 1.5);
-    speaker->setTempo(1);
-    assert(speaker->getTempo() == 1.0);
+    // test set gain with border values
+    defaultValue = speaker->getVolumeGain();
+    max = NARRATOR_MAX_VOLUMEGAIN;
+    gtmax = (float)(max + 0.1);
+    ltmax = (float)(max - 0.1);
+    min = NARRATOR_MIN_VOLUMEGAIN;
+    gtmin = (float)(min + 0.1);
+    ltmin = (float)(min - 0.1);
 
-    // test set pitch
-    speaker->setPitch(1.5);
-    assert(speaker->getPitch() == 1.5);
-    speaker->setPitch(2);
-    assert(speaker->getPitch() == 1.5);
-    speaker->setPitch(0.5);
-    assert(speaker->getPitch() == 0.5);
-    speaker->setPitch(0);
-    assert(speaker->getPitch() == 0.5);
-    speaker->adjustPitch(0.5);
-    assert(speaker->getPitch() == 1.0);
-    speaker->adjustPitch(-1);
-    assert(speaker->getPitch() == 0.5);
-    speaker->adjustPitch(2);
-    assert(speaker->getPitch() == 1.5);
-    speaker->setPitch(1);
-    assert(speaker->getPitch() == 1.0);
+    speaker->setVolumeGain(max);
+    assert(speaker->getVolumeGain() == max);
+    speaker->setVolumeGain(gtmax);
+    assert(speaker->getVolumeGain() == max);
+    speaker->setVolumeGain(ltmax);
+    assert(speaker->getVolumeGain() == ltmax);
+
+    speaker->setVolumeGain(min);
+    assert(speaker->getVolumeGain() == min);
+    speaker->setVolumeGain(ltmin);
+    assert(speaker->getVolumeGain() == min);
+    speaker->setVolumeGain(gtmin);
+    assert(speaker->getVolumeGain() == gtmin);
+
+    speaker->setVolumeGain(defaultValue);
+    assert(speaker->getVolumeGain() == defaultValue);
+
+    // test set tempo with border values
+    defaultValue = speaker->getTempo();
+    max = NARRATOR_MAX_TEMPO;
+    gtmax = (float)(max + 0.1);
+    ltmax = (float)(max - 0.1);
+    min = NARRATOR_MIN_TEMPO;
+    gtmin = (float)(min + 0.1);
+    ltmin = (float)(min - 0.1);
+
+    speaker->setTempo(max);
+    assert(speaker->getTempo() == max);
+    speaker->setTempo(gtmax);
+    assert(speaker->getTempo() == max);
+    speaker->setTempo(ltmax);
+    assert(speaker->getTempo() == ltmax);
+
+    speaker->setTempo(min);
+    assert(speaker->getTempo() == min);
+    speaker->setTempo(ltmin);
+    assert(speaker->getTempo() == min);
+    speaker->setTempo(gtmin);
+    assert(speaker->getTempo() == gtmin);
+
+    speaker->setTempo(defaultValue);
+    assert(speaker->getTempo() == defaultValue);
+
+    // test set pitch with border values
+    defaultValue = speaker->getPitch();
+    max = NARRATOR_MAX_PITCH;
+    gtmax = (float)(max + 0.1);
+    ltmax = (float)(max - 0.1);
+    min = NARRATOR_MIN_PITCH;
+    gtmin = (float)(min + 0.1);
+    ltmin = (float)(min - 0.1);
+
+    speaker->setPitch(max);
+    assert(speaker->getPitch() == max);
+    speaker->setPitch(gtmax);
+    assert(speaker->getPitch() == max);
+    speaker->setPitch(ltmax);
+    assert(speaker->getPitch() == ltmax);
+
+    speaker->setPitch(min);
+    assert(speaker->getPitch() == min);
+    speaker->setPitch(ltmin);
+    assert(speaker->getPitch() == min);
+    speaker->setPitch(gtmin);
+    assert(speaker->getPitch() == gtmin);
+
+    speaker->setPitch(defaultValue);
+    assert(speaker->getPitch() == defaultValue);
 
     /*
      * play interface
