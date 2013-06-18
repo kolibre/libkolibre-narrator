@@ -24,9 +24,10 @@ Documentation
 Kolibre client developer documentation is available at 
 https://github.com/kolibre/libkolibre-builder/wiki
 
-This library is documented using doxygen.
+This library is documented using doxygen. Generate documentation by executing
 
-Type ./configure && make doxygen-doc to generate documentation.
+    $ ./configure
+    $ make doxygen-doc
 
 
 Platforms
