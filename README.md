@@ -52,13 +52,14 @@ Major dependencies for libkolibre-narrator:
 Building from source
 ---------------------------------
 If building from GIT sources, first do a:
-$ autoreconf -fi
+
+    $ autoreconf -fi
 
 If building from a release tarball you can skip the above step.
 
-$ ./configure
-$ make
-$ make install
+    $ ./configure
+    $ make
+    $ make install
 
 see INSTALL for detailed instructions.
 
