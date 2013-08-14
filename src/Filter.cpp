@@ -32,6 +32,8 @@ Filter::Filter()
     mTempo = 1.0;
     mPitch = 1.0;
     mGain = 1.0;
+    mRate = 0;
+    mChannels = 0;
 
     setTempo(mTempo);
     setPitch(mPitch);
