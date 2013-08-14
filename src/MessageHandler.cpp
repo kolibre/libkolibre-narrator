@@ -46,6 +46,11 @@ MessageHandler::MessageHandler()
     }
 }
 
+MessageHandler::~MessageHandler()
+{
+    if(db) delete db;
+}
+
 /// Message handling routines
 long MessageHandler::updateMessage(const Message &msg)
 {

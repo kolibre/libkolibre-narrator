@@ -29,7 +29,7 @@ class MessageHandler
 {
     public:
         MessageHandler();
-
+        ~MessageHandler();
         // adds/updates a message in the database, returns id if success -1 if not
         long updateMessage(const Message &msg);
 
