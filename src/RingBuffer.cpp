@@ -29,13 +29,13 @@ RingBuffer::RingBuffer():
     maxIndex(0),
     readIndex(0),
     writeIndex(0),
-    full(0)
+    full(0),
+    bufMutex()
 {
     // Initialize buffer mutex
-    bufMutex = new pthread_mutex_t;
-    pthread_mutex_init(bufMutex, NULL);
-    pthread_mutex_lock(bufMutex);
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_init(&bufMutex, NULL);
+    pthread_mutex_lock(&bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 }
 
 RingBuffer::RingBuffer(size_t elements):
@@ -43,21 +43,20 @@ RingBuffer::RingBuffer(size_t elements):
     maxIndex(0),
     readIndex(0),
     writeIndex(0),
-    full(0)
+    full(0),
+    bufMutex()
 {
     // Initialize buffer mutex
-    bufMutex = new pthread_mutex_t;
-    pthread_mutex_init(bufMutex, NULL);
-    pthread_mutex_lock(bufMutex);
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_init(&bufMutex, NULL);
+    pthread_mutex_lock(&bufMutex);
+    pthread_mutex_unlock(&bufMutex);
     initialize(elements);
 }
 
 RingBuffer::~RingBuffer()
 {
-    pthread_mutex_unlock(bufMutex);
-    pthread_mutex_destroy(bufMutex);
-    free(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
+    pthread_mutex_destroy(&bufMutex);
 }
 
 const size_t RingBuffer::initialize(const size_t elements)
@@ -88,9 +87,9 @@ const size_t RingBuffer::getReadAvailable()
 {
     size_t elements = 0;
 
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     elements = _getReadAvailable();
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     return elements;
 }
@@ -106,9 +105,9 @@ const size_t RingBuffer::getWriteAvailable()
 {
     size_t elements = 0;
 
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     elements = _getWriteAvailable();
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     return elements;
 }
@@ -125,10 +124,10 @@ void RingBuffer::_advanceWriteIndex(const size_t elements)
 const size_t RingBuffer::writeElements(const float * source, size_t elements)
 {
     //std::cout << __FUNCTION__ << " readIndex " << readIndex << " writeIndex " << writeIndex << //std::endl;
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     size_t available = _getWriteAvailable();
     size_t wIndex = writeIndex;
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     if(elements > available) elements = available;
 
@@ -151,10 +150,10 @@ const size_t RingBuffer::writeElements(const float * source, size_t elements)
         memcpy(buffer, source + rightSize, leftSize * sizeof(float));
     }
 
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     _advanceWriteIndex(elements);
     if(writeIndex == readIndex) full = true;
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     return elements;
 }
@@ -171,10 +170,10 @@ void RingBuffer::_advanceReadIndex(const size_t elements)
 const size_t RingBuffer::readElements(float *data, size_t elements)
 {
     //std::cout << __FUNCTION__ << " readIndex " << readIndex << " writeIndex " << writeIndex << //std::endl;
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     size_t available = _getReadAvailable();
     size_t rIndex = readIndex;
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     if(elements > available) elements = available;
 
@@ -197,18 +196,18 @@ const size_t RingBuffer::readElements(float *data, size_t elements)
         memcpy(data + rightSize, buffer, leftSize * sizeof(float));
     }
 
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     _advanceReadIndex(elements);
     if(elements) full = false;
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 
     return elements;
 }
 
 void RingBuffer::flush()
 {
-    pthread_mutex_lock(bufMutex);
+    pthread_mutex_lock(&bufMutex);
     readIndex = writeIndex = 0;
     full = false;
-    pthread_mutex_unlock(bufMutex);
+    pthread_mutex_unlock(&bufMutex);
 }

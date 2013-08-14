@@ -54,7 +54,7 @@ class RingBuffer {
         void _advanceWriteIndex(const size_t elements);
 
         float *buffer;
-        pthread_mutex_t *bufMutex;
+        pthread_mutex_t bufMutex;
 
         size_t maxIndex;
         size_t readIndex;
