@@ -104,7 +104,7 @@ bool Message::load(string identifier, string cls)
         return false;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result))
         return false;
 
@@ -142,7 +142,7 @@ bool Message::load(string identifier, string cls)
         return false;
     }
 
-    DBResult result2;
+    narrator::DBResult result2;
 
     if(!db->perform(&result2)) {
         LOG4CXX_ERROR(narratorMsgLog, "Query failed '" << db->getLasterror() << "'");
@@ -170,7 +170,7 @@ bool Message::load(string identifier, string cls)
         return false;
     }
 
-    DBResult result3;
+    narrator::DBResult result3;
     if(!db->perform(&result3)) {
         LOG4CXX_ERROR(narratorMsgLog, "Query failed '" << db->getLasterror() << "'");
         return false;
@@ -209,7 +209,7 @@ bool Message::load(string identifier, string cls)
         return false;
     }
 
-    DBResult result4;
+    narrator::DBResult result4;
     if(!db->perform(&result4)) {
         LOG4CXX_ERROR(narratorMsgLog, "Query failed '" << db->getLasterror() << "'");
         return false;
