@@ -95,6 +95,7 @@ Narrator::Narrator()
     mLanguage = "en";
     mDatabasePath = "";
     bPushCommandFinished = true;
+    bResetFlag = false;
 
     pthread_mutex_lock(narratorMutex);
     pthread_mutex_unlock(narratorMutex);
@@ -1040,6 +1041,7 @@ void *narrator_thread(void *narrator)
     LOG4CXX_INFO(narratorLog, "Starting playbackthread");
 
     do {
+        n->bResetFlag = false;
         queueitems = n->numPlaylistItems();
 
         if(queueitems == 0) {
@@ -1056,8 +1058,6 @@ void *narrator_thread(void *narrator)
 
             // Break if we during the pause got some more queued items to play
             if(queueitems == 0) {
-                //Reset reset flag
-                n->bResetFlag = false;
                 n->setState(Narrator::WAIT);
                 n->audioFinishedPlaying();
                 LOG4CXX_INFO(narratorLog, "Narrator in WAIT state");
@@ -1071,8 +1071,6 @@ void *narrator_thread(void *narrator)
                     queueitems = n->numPlaylistItems();
                 }
             }
-            else
-                n->bResetFlag = false;
             LOG4CXX_INFO(narratorLog, "Narrator starting playback");
         }
 
