@@ -1076,13 +1076,16 @@ void *narrator_thread(void *narrator)
                     queueitems = n->numPlaylistItems();
                 }
             }
-
             LOG4CXX_INFO(narratorLog, "Narrator starting playback");
 
         }
 
         if(state == Narrator::EXIT) break;
 
+        //If we got queue items but narrator is in reset quickly set WAIT before we set play again
+        else if(state == Narrator::RESET){
+            n->setState(Narrator::WAIT);
+        }
         n->setState(Narrator::PLAY);
 
         Narrator::PlaylistItem pi;
