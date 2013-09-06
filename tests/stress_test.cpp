@@ -50,6 +50,7 @@ void NarratorControl::narratorDoneSlot() {
 void NarratorControl::stress() {
     int counter = 0;
     while(counter++ < 150) {
+        std::cout << "Stress iterator: " << counter << endl;
         speaker->play("Monday");
         speaker->playDate(1,1,1970);
         speaker->playTime(12,12,12);
