@@ -1058,8 +1058,8 @@ void *narrator_thread(void *narrator)
 
             // Break if we during the pause got some more queued items to play
             if(queueitems == 0) {
-                n->setState(Narrator::WAIT);
                 n->audioFinishedPlaying();
+                n->setState(Narrator::WAIT);
                 LOG4CXX_INFO(narratorLog, "Narrator in WAIT state");
                 portaudio.stop();
 
