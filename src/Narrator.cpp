@@ -868,8 +868,8 @@ void Narrator::setState(Narrator::threadState state)
 {
 
     pthread_mutex_lock(narratorMutex);
-    if(state==Narrator::PLAY && mState==Narrator::EXIT){
-        LOG4CXX_INFO(narratorLog, "Narrator :" << getState_str(mState) << ", not changing state to: " << getState_str(state));
+    if(mState == Narrator::EXIT) {
+        LOG4CXX_INFO(narratorLog, "Narrator in state:" << getState_str(mState) << ", not changing to state: " << getState_str(state));
     }
     else
         mState = state;
