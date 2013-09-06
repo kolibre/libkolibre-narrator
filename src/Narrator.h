@@ -116,7 +116,7 @@ class Narrator
 
         bool setupThread();
         /*! \cond PRIVATE */
-        friend void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch, Narrator::threadState& state );
+        friend void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch );
         friend void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter, float* buffer );
         friend void *narrator_thread(void *narrator);
         /*! \endcond */

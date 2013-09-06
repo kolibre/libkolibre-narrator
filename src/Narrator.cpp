@@ -953,17 +953,15 @@ int Narrator::numPlaylistItems()
 /**
  * Called from the narrator_thread to adjust playback parameters.
  *
- * @param n reference to the narrotr to adjust
- * @param filter Audio filter
+ * @param n reference to the narrator to adjust
+ * @param filter audio filter
  * @param gain new gain
  * @param tempo new tempo
  * @param pitch new pitch
- * @param state new state
  */
-void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch, Narrator::threadState& state )
+void adjustGainTempoPitch(Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch)
 {
     pthread_mutex_lock(n->narratorMutex);
-    state = n->mState;
     if(gain != n->mVolumeGain) {
         gain = n->mVolumeGain;
         LOG4CXX_DEBUG(narratorLog, "Setting gain(" << gain << ")");
@@ -1127,8 +1125,8 @@ void *narrator_thread(void *narrator)
             //buffer = (short*)malloc(sizeof(short) * 2 * BUFFERSIZE);
             // long totalSamplesRead = 0;
             do {
-                // Check for changes in state, gain, tempo and pitch
-                adjustGainTempoPitch( n, filter, gain, tempo, pitch, state );
+                // change gain, tempo and pitch
+                adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                 // read some stuff from the oggstream
                 inSamples = oggstream.read(buffer, BUFFERSIZE*2);
@@ -1143,6 +1141,7 @@ void *narrator_thread(void *narrator)
                 }
 
                 writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                state = n->getState();
 
             } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
@@ -1194,8 +1193,8 @@ void *narrator_thread(void *narrator)
                     buffer = (float*)malloc(sizeof(float) * 2 * BUFFERSIZE);
 
                     do {
-                        // Check for changed state, gain, tempo or pitch
-                        adjustGainTempoPitch( n, filter, gain, tempo, pitch, state );
+                        // change gain, tempo and pitch
+                        adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                         // read some stuff from the oggstream
                         inSamples = oggstream.read(buffer, BUFFERSIZE);
@@ -1208,6 +1207,7 @@ void *narrator_thread(void *narrator)
                         }
 
                         writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                        state = n->getState();
 
                     } while (inSamples != 0 && state == Narrator::PLAY);
 
