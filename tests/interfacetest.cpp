@@ -17,12 +17,10 @@ You should have received a copy of the GNU Lesser General Public License
 along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
 #include <Narrator.h>
 #include <iostream>
 #include "setup_logging.h"
 
-int sleepDuration = 1;
 bool narratorDone = false;
 
 void narrator_done() {
@@ -145,12 +143,12 @@ int main(int argc, char **argv)
     // test play identifier
     narratorDone = false;
     speaker->play("Monday");
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     narratorDone = false;
     speaker->play(1);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play file
@@ -160,60 +158,60 @@ int main(int argc, char **argv)
         srcdir = ".";
     string file = string(srcdir) + string("/aktuell_sida.ogg");
     speaker->playFile(file);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play date
     narratorDone = false;
     speaker->playDate(1,1,1970);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play time
     narratorDone = false;
     speaker->playTime(12,12,12);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play duration
     narratorDone = false;
     speaker->playDuration(12,12,12);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play duration
     narratorDone = false;
     speaker->playDuration(12);
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play resource
     narratorDone = false;
     speaker->playResource("Monday", "prompt");
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play identifier with parameter
     narratorDone = false;
     speaker->setParameter("2", 12);
     speaker->play("{2} minutes");
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play pauses
     narratorDone = false;
     speaker->playLongpause();
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
     narratorDone = false;
     speaker->playShortpause();
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     // test play wait jingle
     narratorDone = false;
     speaker->playWait();
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     /*
@@ -227,7 +225,7 @@ int main(int argc, char **argv)
     speaker->spell("info@kolibre.org");
     speaker->spell("1.2.3~4");
     speaker->spell("+5 -6");
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     //void setParameter(const string &key, const string &value);
@@ -237,7 +235,7 @@ int main(int argc, char **argv)
     speaker->setPushCommandFinished(false);
     assert(speaker->getPushCommandFinished() == false);
     speaker->play("Monday");
-    do { sleep(sleepDuration); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone == false);
 
     return 0;

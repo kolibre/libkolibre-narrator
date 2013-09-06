@@ -94,7 +94,7 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     /*
@@ -115,7 +115,7 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     /*
@@ -136,7 +136,7 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     return 0;

@@ -17,7 +17,6 @@ You should have received a copy of the GNU Lesser General Public License
 along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <unistd.h>
 #include <Narrator.h>
 #include "setup_logging.h"
 
@@ -41,7 +40,7 @@ int main(int argc, char **argv)
         srcdir = ".";
     string file = string(srcdir) + string("/aktuell_sida.ogg");
     speaker->playFile(file);
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     return 0;
