@@ -148,6 +148,7 @@ class Narrator
 
         void setState(threadState state);
         threadState getState();
+        string getState_str(threadState);
         threadState mState;
 
         void audioFinishedPlaying();

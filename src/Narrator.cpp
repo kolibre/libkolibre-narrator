@@ -544,6 +544,7 @@ void Narrator::play(const char *identifier)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
+    setState(Narrator::PLAY);
 }
 
 /**
@@ -563,6 +564,7 @@ void Narrator::playFile(const string filepath)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
+    setState(Narrator::PLAY);
 }
 
 /**
@@ -583,6 +585,7 @@ void Narrator::play(int number)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
+    setState(Narrator::PLAY);
 }
 
 /**
@@ -604,6 +607,7 @@ void Narrator::playResource(string str, string cls)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
+    setState(Narrator::PLAY);
 }
 
 /**
@@ -862,8 +866,13 @@ void Narrator::stop()
  */
 void Narrator::setState(Narrator::threadState state)
 {
+
     pthread_mutex_lock(narratorMutex);
-    mState = state;
+    if(state==Narrator::PLAY && mState==Narrator::EXIT || mState==Narrator::RESET){
+        LOG4CXX_INFO(narratorLog, "Narrator :" << getState_str(mState) << ", not changing state to: " << getState_str(state));
+    }
+    else
+        mState = state;
     pthread_mutex_unlock(narratorMutex);
 }
 
@@ -903,6 +912,17 @@ bool Narrator::isSpeaking()
 string Narrator::getState_str()
 {
     Narrator::threadState state = getState();
+    return getState_str(state);
+}
+
+/**
+ * Getter for narrator state as a human readable
+ *
+ * @param state to convert
+ * @return Narrator state as a string
+ */
+string Narrator::getState_str(Narrator::threadState state)
+{
     switch(state)
     {
         case Narrator::DEAD: return "Narrator::DEAD";
