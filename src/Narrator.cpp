@@ -544,7 +544,6 @@ void Narrator::play(const char *identifier)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
-    setState(Narrator::PLAY);
 }
 
 /**
@@ -564,7 +563,6 @@ void Narrator::playFile(const string filepath)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
-    setState(Narrator::PLAY);
 }
 
 /**
@@ -585,7 +583,6 @@ void Narrator::play(int number)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
-    setState(Narrator::PLAY);
 }
 
 /**
@@ -607,7 +604,6 @@ void Narrator::playResource(string str, string cls)
     pthread_mutex_lock(narratorMutex);
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
-    setState(Narrator::PLAY);
 }
 
 /**
@@ -796,7 +792,7 @@ void Narrator::playDate(int day, int month, int year)
     setParameter("year", year);
     setParameter("yearnum", year);
 
-    // Calculate the day this date ocurred (http://users.aol.com/s6sj7gt/mikecal.htm)
+    // Calculate the day this date occurred (http://users.aol.com/s6sj7gt/mikecal.htm)
     int daynum = (day+=month<3?year--:year-2,23*month/9+day+4+year/4-year/100+year/400)%7;
     setParameter("dayname", daynum);
 
@@ -900,7 +896,7 @@ bool Narrator::isSpeaking()
 {
     Narrator::threadState state = getState();
 
-    if(state == Narrator::PLAY) return true;
+    if(state == Narrator::PLAY || mPlaylist.size() > 0) return true;
     else return false;
 }
 
@@ -1078,7 +1074,6 @@ void *narrator_thread(void *narrator)
             else
                 n->bResetFlag = false;
             LOG4CXX_INFO(narratorLog, "Narrator starting playback");
-
         }
 
         if(state == Narrator::EXIT) break;
