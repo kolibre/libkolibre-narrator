@@ -855,7 +855,7 @@ void Narrator::stop()
 
     // Tell the playbackthread to stop playing
     pthread_mutex_lock(narratorMutex);
-    mState = Narrator::RESET;
+    bResetFlag = true;
     pthread_mutex_unlock(narratorMutex);
 }
 
@@ -868,7 +868,7 @@ void Narrator::setState(Narrator::threadState state)
 {
 
     pthread_mutex_lock(narratorMutex);
-    if(state==Narrator::PLAY && mState==Narrator::EXIT || mState==Narrator::RESET){
+    if(state==Narrator::PLAY && mState==Narrator::EXIT){
         LOG4CXX_INFO(narratorLog, "Narrator :" << getState_str(mState) << ", not changing state to: " << getState_str(state));
     }
     else
@@ -900,7 +900,7 @@ bool Narrator::isSpeaking()
 {
     Narrator::threadState state = getState();
 
-    if(state == Narrator::PLAY || state == Narrator::RESET) return true;
+    if(state == Narrator::PLAY) return true;
     else return false;
 }
 
@@ -928,7 +928,6 @@ string Narrator::getState_str(Narrator::threadState state)
         case Narrator::DEAD: return "Narrator::DEAD";
         case Narrator::WAIT: return "Narrator::WAIT";
         case Narrator::PLAY: return "Narrator::PLAY";
-        case Narrator::RESET: return "Narrator::RESET";
         case Narrator::EXIT: return "Narrator::EXIT";
     }
 
@@ -1063,6 +1062,8 @@ void *narrator_thread(void *narrator)
 
             // Break if we during the pause got some more queued items to play
             if(queueitems == 0) {
+                //Reset reset flag
+                n->bResetFlag = false;
                 n->setState(Narrator::WAIT);
                 n->audioFinishedPlaying();
                 LOG4CXX_INFO(narratorLog, "Narrator in WAIT state");
@@ -1076,16 +1077,14 @@ void *narrator_thread(void *narrator)
                     queueitems = n->numPlaylistItems();
                 }
             }
+            else
+                n->bResetFlag = false;
             LOG4CXX_INFO(narratorLog, "Narrator starting playback");
 
         }
 
         if(state == Narrator::EXIT) break;
 
-        //If we got queue items but narrator is in reset quickly set WAIT before we set play again
-        else if(state == Narrator::RESET){
-            n->setState(Narrator::WAIT);
-        }
         n->setState(Narrator::PLAY);
 
         Narrator::PlaylistItem pi;
@@ -1145,7 +1144,7 @@ void *narrator_thread(void *narrator)
 
                 writeSamplesToPortaudio( n, portaudio, filter, buffer );
 
-            } while (inSamples != 0 && state == Narrator::PLAY);
+            } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
             if(buffer != NULL) delete [] (buffer);
             oggstream.close();
@@ -1216,12 +1215,12 @@ void *narrator_thread(void *narrator)
                     oggstream.close();
                     audio++;
 
-                } while(audio != vAudioQueue.end() && state == Narrator::PLAY);
+                } while(audio != vAudioQueue.end() && state == Narrator::PLAY && !n->bResetFlag);
             }
         }
 
         // Abort stream?
-        if(state != Narrator::PLAY) {
+        if(n->bResetFlag || state != Narrator::PLAY) {
             filter.clear();
             portaudio.abort();
         }

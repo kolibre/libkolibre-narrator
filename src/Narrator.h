@@ -110,7 +110,7 @@ class Narrator
         bool addMp3Audio(const char *identifier, const char *data, int size);
 
     private:
-        enum threadState { DEAD, WAIT, PLAY, RESET, EXIT };
+        enum threadState { DEAD, WAIT, PLAY, EXIT };
 
         static Narrator *pinstance;
 
@@ -131,6 +131,7 @@ class Narrator
         float mPitch;
 
         bool bPushCommandFinished;
+        bool bResetFlag;
 
         enum ItemType { type_unknown, type_message, type_resource };
 
