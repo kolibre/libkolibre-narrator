@@ -1041,7 +1041,6 @@ void *narrator_thread(void *narrator)
     LOG4CXX_INFO(narratorLog, "Starting playbackthread");
 
     do {
-        n->bResetFlag = false;
         queueitems = n->numPlaylistItems();
 
         if(queueitems == 0) {
@@ -1078,6 +1077,7 @@ void *narrator_thread(void *narrator)
         if(state == Narrator::EXIT) break;
 
         n->setState(Narrator::PLAY);
+        n->bResetFlag = false;
 
         Narrator::PlaylistItem pi;
 
@@ -1203,7 +1203,7 @@ void *narrator_thread(void *narrator)
                         writeSamplesToPortaudio( n, portaudio, filter, buffer );
                         state = n->getState();
 
-                    } while (inSamples != 0 && state == Narrator::PLAY);
+                    } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
                     if(buffer != NULL) free(buffer);
                     oggstream.close();
@@ -1214,7 +1214,8 @@ void *narrator_thread(void *narrator)
         }
 
         // Abort stream?
-        if(n->bResetFlag || state != Narrator::PLAY) {
+        if(n->bResetFlag) {
+            n->bResetFlag = false;
             filter.clear();
             portaudio.abort();
         }
