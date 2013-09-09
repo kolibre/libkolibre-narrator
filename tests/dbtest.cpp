@@ -36,7 +36,10 @@ int readData(std::string file, char ** buffer){
     ifstream is;
     try {
         is.open (file.c_str(), ios::binary );
-
+        if (is.fail()){
+            cout << "Could not open file: " << file << endl;
+            return -1;
+        }
         // get length of file:
         is.seekg (0, ios::end);
         length = is.tellg();
@@ -86,6 +89,7 @@ int main(int argc, char **argv)
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
@@ -107,6 +111,7 @@ int main(int argc, char **argv)
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
@@ -128,6 +133,7 @@ int main(int argc, char **argv)
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
