@@ -156,7 +156,7 @@ int main(int argc, char **argv)
     char* srcdir = getenv("srcdir");
     if(!srcdir)
         srcdir = ".";
-    string file = string(srcdir) + string("/aktuell_sida.ogg");
+    string file = string(srcdir) + string("/testdata/file1.ogg");
     speaker->playFile(file);
     while (speaker->isSpeaking());
     assert(narratorDone);

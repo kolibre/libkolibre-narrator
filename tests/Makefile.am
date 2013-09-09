@@ -38,4 +38,4 @@ interfacetest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 INCLUDES = -I$(top_srcdir)/src
 
-EXTRA_DIST = aktuell_sida.ogg setup_logging.h dbtest.sh interfacetest.sh stress_test.sh
+EXTRA_DIST = setup_logging.h dbtest.sh interfacetest.sh stress_test.sh testdata

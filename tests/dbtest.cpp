@@ -77,8 +77,8 @@ int main(int argc, char **argv)
     char* srcdir = getenv("srcdir");
     if(!srcdir)
         srcdir = ".";
-    file = string(srcdir) + string("/aktuell_sida.ogg");
-    identifier = "Aktuell sida";
+    file = string(srcdir) + string("/testdata/file1.ogg");
+    identifier = "File one";
 
     /*
      * try inserting ogg audio -> expect successful insert
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    identifier = "aktuell Sida";
+    identifier = "file One";
     if (!speaker->hasOggAudio(identifier.c_str()))
     {
         // add ogg audio to database
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    identifier = "Aktuell Sida";
+    identifier = "File One";
     if (!speaker->hasOggAudio(identifier.c_str()))
     {
         // add ogg audio to database
