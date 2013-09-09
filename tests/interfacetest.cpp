@@ -238,5 +238,8 @@ int main(int argc, char **argv)
     while (speaker->isSpeaking());
     assert(narratorDone == false);
 
+    // stop thread and delete instance before exiting
+    delete speaker;
+
     return 0;
 }

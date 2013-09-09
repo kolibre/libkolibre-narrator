@@ -28,6 +28,7 @@ class NarratorControl
         Narrator *speaker;
 
         NarratorControl();
+        ~NarratorControl();
 
         void narratorDoneSlot();
         void stress();
@@ -41,6 +42,12 @@ NarratorControl::NarratorControl():
     speaker->setLanguage("sv");
     speaker->setTempo(1.5);
 
+}
+
+NarratorControl::~NarratorControl()
+{
+    // stop thread and delete instance before exiting
+    delete speaker;
 }
 
 void NarratorControl::narratorDoneSlot() {
@@ -67,7 +74,7 @@ int main(int argc, char **argv)
 {
     setup_logging();
 
-    NarratorControl narratorcontrol; 
+    NarratorControl narratorcontrol;
     narratorcontrol.stress();
     sleep(1);
     assert(!narratorcontrol.speaker->isSpeaking());
