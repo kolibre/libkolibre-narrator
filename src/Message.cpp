@@ -229,7 +229,7 @@ bool Message::load(string identifier, string cls)
         ma->setMd5(result4.getText(5));
 
         // Set the db where messageaudio can find data
-        //ma->setDatabase(db->getDatabase());
+        LOG4CXX_TRACE(narratorMsgLog, "Adding audio translation " << ma->getAudioid() << ": " << ma->getText());
         mt.addAudio(*ma);
         delete ma;
         count++;
@@ -300,7 +300,7 @@ bool Message::compile()
                     stringstream ss(tag.substr(pos1+1, pos2-pos1-1));
                     int tagid = -1;
                     ss >> tagid;
-                    //cout << "Got audio tag " << tagid << endl;
+                    LOG4CXX_TRACE(narratorMsgLog,  "Got audio tag " << tagid);
 
                     int idx = mTranslation.findAudioIdx(tagid);
                     if(idx >= 0) appendAudioQueue(mTranslation.getAudio(idx));
@@ -314,14 +314,16 @@ bool Message::compile()
                         (pos2 = tag.find('}')) != string::npos)
                 {
                     string paramkey = tag.substr(pos1+1, pos2-pos1-1);
-                    //cout << "Got parameter tag " << paramkey << endl;
+                    LOG4CXX_DEBUG(narratorMsgLog, "Got parameter tag " << paramkey << ", finding match from: " << vParameters.size() << " parameters");
 
                     vector<MessageParameter>::iterator i = vParameters.begin();
                     while(i != vParameters.end()) {
                         //(*i).print();
+                        LOG4CXX_TRACE(narratorMsgLog, "Matching '" << paramkey << "' with: " << (*i).getKey() << " (" << (*i).getStringValue() << ") " << (*i).getIntValue());
                         if((*i).getKey() == paramkey) {
                             //paramtype = (*i).getType();
                             appendParameter((*i));
+                            LOG4CXX_TRACE(narratorMsgLog, "Match found!");
                         } //else cout << (*i).getKey() << " does not match " << paramkey << endl;
                         i++;
                     }
@@ -472,7 +474,7 @@ bool Message::appendParameter(MessageParameter &param)
             break;
 
         default:
-            LOG4CXX_WARN(narratorMsgLog, "Unknown parameter type: " << param.getTypeStr());
+            LOG4CXX_WARN(narratorMsgLog, "Unknown parameter type: " << param.getTypeStr() << ", key: " << param.getKey() << ", ivalue: " << param.getIntValue() << ", svalue: " << param.getStringValue());
             break;
     }
 
@@ -871,7 +873,7 @@ void MessageTranslation::print() const
 ////////////////////////////////
 MessageParameter::MessageParameter(string key, string type)
 {
-    //cout << "constructing messageparameter: " << key << " type: " << type << " typeid " << stringToType(type) << endl;
+    LOG4CXX_TRACE(narratorMsgLog, "constructing messageparameter key: " << key << " of type: " << stringToType(type));
     mKey = key;
     mType = stringToType(type);
     mIntValue = -1;
@@ -883,7 +885,7 @@ MessageParameter::MessageParameter(string key, string type)
 
 MessageParameter::MessageParameter(string key, int value)
 {
-    //cout << "constructing messageparameter: " << key << " type: " << type << " typeid " << stringToType(type) << endl;
+    LOG4CXX_TRACE(narratorMsgLog, "constructing messageparameter key: " << key << " = " << value);
     mKey = key;
     mType = param_unknown;
     mIntValue = value;
@@ -892,7 +894,7 @@ MessageParameter::MessageParameter(string key, int value)
 
 MessageParameter::MessageParameter(string key)
 {
-    //cout << "constructing messageparameter: " << key << " type: " << type << " typeid " << stringToType(type) << endl;
+    LOG4CXX_TRACE(narratorMsgLog, "constructing messageparameter key: " << key );
     mKey = key;
     mType = param_unknown;
     mIntValue = -1;
