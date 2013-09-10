@@ -620,11 +620,7 @@ void Narrator::playResource(string str, string cls)
     pi.mClass = cls;
 
     pthread_mutex_lock(narratorMutex);
-    if(nextMessage == NULL)
-        nextMessage = new Message();
-
-    pi.mMessage = nextMessage;
-    nextMessage = NULL;
+    pi.mMessage = new Message();
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
