@@ -484,14 +484,15 @@ bool Message::appendMessage(string identifier, string cls)
     bool compileStatus = false;
     Message *m;
     m = new Message(db, this);
-    m->load(identifier, cls);
-    compileStatus = m->compile();
-    if(compileStatus) {
-        appendAudioQueue(m->getAudioQueue());
-    } else {
-        LOG4CXX_WARN(narratorMsgLog, "Failed to append message '" << identifier << "'");
-    }
 
+    if(m->load(identifier, cls)){
+        compileStatus = m->compile();
+        if(compileStatus) {
+            appendAudioQueue(m->getAudioQueue());
+        } else {
+            LOG4CXX_WARN(narratorMsgLog, "Failed to append message '" << identifier << "'");
+        }
+    }
     delete m;
     return compileStatus;
 }
