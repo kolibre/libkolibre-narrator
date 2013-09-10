@@ -287,9 +287,9 @@ bool Message::compile()
 
         if(tags.size()) {
 
-            vector<string>::iterator i = tags.begin();
-            while(i != tags.end()) {
-                string tag = *i;
+            vector<string>::iterator tagIt = tags.begin();
+            while(tagIt != tags.end()) {
+                string tag = *tagIt;
                 size_t pos1;
                 size_t pos2;
 
@@ -333,7 +333,7 @@ bool Message::compile()
                 else {
                     LOG4CXX_WARN(narratorMsgLog, "Strange tag: '" << tag << "' in '" << audiotags << "'");
                 }
-                i++;
+                tagIt++;
             }
             //iCurrentAudioQueue = mAudioQueue.begin();
 
