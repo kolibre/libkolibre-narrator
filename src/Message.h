@@ -220,6 +220,7 @@ class Message {
         const vector<MessageParameter>& getParameters() const { return vParameters; };
 
         void addParameter(string key, string type);
+        void addParameter(MessageParameter mp);
         int findParameterIdx(const string &key);
         int numParameters() const { return vParameters.size(); };
         const MessageParameter &getParameter(int idx) const { return vParameters[idx]; };

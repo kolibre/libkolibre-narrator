@@ -754,6 +754,10 @@ void Message::addParameter(string key, string type) {
     vParameters.push_back(mp);
 }
 
+void Message::addParameter(MessageParameter mp) {
+    vParameters.push_back(mp);
+}
+
 int Message::findParameterIdx(const string &key)
 {
     vector <MessageParameter>::const_iterator i;
