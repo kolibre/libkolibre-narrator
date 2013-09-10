@@ -778,7 +778,7 @@ void Narrator::spell(string word)
                 case 95: // _
                 case 126: // ~
                     LOG4CXX_DEBUG(narratorLog, "symbol '" << c << "'");
-                    playResource(s, "letter");
+                    playResource(s, "symbol");
                     break;
                 default:
                     LOG4CXX_WARN(narratorLog, "character not supported");
