@@ -96,6 +96,7 @@ Narrator::Narrator()
     mDatabasePath = "";
     bPushCommandFinished = true;
     bResetFlag = false;
+    nextMessage = NULL;
 
     pthread_mutex_lock(narratorMutex);
     pthread_mutex_unlock(narratorMutex);
@@ -230,9 +231,9 @@ void Narrator::setDatabasePath(string path)
 string Narrator::getDatabasePath()
 {
     string path;
-    pthread_mutex_lock(narratorMutex);
+    //pthread_mutex_lock(narratorMutex);
     path = mDatabasePath;
-    pthread_mutex_unlock(narratorMutex);
+    //pthread_mutex_unlock(narratorMutex);
     return path;
 }
 
@@ -510,9 +511,15 @@ bool Narrator::setupThread() {
  */
 void Narrator::setParameter(const string &key, int value)
 {
+    LOG4CXX_DEBUG(narratorLog, "Got parameter: " << key << ", with value: " << value);
     MessageParameter mp(key);
     mp.setIntValue(value);
-    vParameters.push_back(mp);
+
+    pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    nextMessage->addParameter(mp);
+    pthread_mutex_unlock(narratorMutex);
 }
 
 /**
@@ -523,9 +530,13 @@ void Narrator::setParameter(const string &key, int value)
  */
 void Narrator::setParameter(const string &key, const string &value)
 {
-    MessageParameter mp(key);
-    mp.setStringValue(value);
-    vParameters.push_back(mp);
+    LOG4CXX_DEBUG(narratorLog, "Got parameter: " << key << ", with value: " << value);
+
+    pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    nextMessage->setParameterValue(key, value);
+    pthread_mutex_unlock(narratorMutex);
 }
 
 /**
@@ -539,10 +550,12 @@ void Narrator::play(const char *identifier)
 
     pi.mIdentifier = identifier;
     pi.mClass = "prompt";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -558,10 +571,13 @@ void Narrator::playFile(const string filepath)
 
     pi.mIdentifier = filepath;
     pi.mClass = "file";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -578,10 +594,13 @@ void Narrator::play(int number)
     setParameter("number", number);
     pi.mIdentifier = "{number}";
     pi.mClass = "number";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -599,10 +618,13 @@ void Narrator::playResource(string str, string cls)
 
     pi.mIdentifier = str;
     pi.mClass = cls;
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -846,6 +868,7 @@ void Narrator::stop()
     // Clear the list
     while(!mPlaylist.empty()) {
         //LOG4CXX_DEBUG(narratorLog, "Removing :'" << mPlaylist.front());
+        delete(mPlaylist.front().mMessage);
         mPlaylist.pop();
     }
     pthread_mutex_unlock (narratorMutex);
@@ -1148,14 +1171,19 @@ void *narrator_thread(void *narrator)
             vector <MessageAudio> vAudioQueue;
 
             // Get a list of MessageAudio objects to play
-            Message m;
-            m.setLanguage(lang);
-            m.load(pi.mIdentifier, pi.mClass);
-            m.loadParameterValues(pi.vParameters);
-            if(!m.compile() || !m.hasAudio()) {
+
+            Message *m = pi.mMessage;
+            if(m==NULL){
+                LOG4CXX_ERROR(narratorLog, "Message was null");
+            }
+
+            m->setLanguage(lang);
+            m->load(pi.mIdentifier, pi.mClass);
+
+            if(!m->compile() || !m->hasAudio()) {
                 LOG4CXX_ERROR(narratorLog, "Narrator translation not found: could not find audio for '" << pi.mIdentifier << "'");
             } else {
-                vAudioQueue = m.getAudioQueue();
+                vAudioQueue = m->getAudioQueue();
             }
 
             // Play what we got
@@ -1211,6 +1239,8 @@ void *narrator_thread(void *narrator)
 
                 } while(audio != vAudioQueue.end() && state == Narrator::PLAY && !n->bResetFlag);
             }
+            //Cleanup message object
+            delete(pi.mMessage);
         }
 
         // Abort stream?

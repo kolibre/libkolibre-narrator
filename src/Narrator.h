@@ -41,6 +41,7 @@ using namespace std;
 
 class Filter;
 class PortAudio;
+class Message;
 class MessageParameter;
 
 class Narrator
@@ -96,6 +97,7 @@ class Narrator
 
         void setParameter(const string &key, int value);
         void setParameter(const string &key, const string &value);
+        void setParameterType(const string &key, const string &value);
 
         bool setLanguage(string lang);
         string getLanguage();
@@ -125,6 +127,7 @@ class Narrator
 
         string mLanguage;
         string mDatabasePath;
+        Message *nextMessage;
 
         float mVolumeGain;
         float mTempo;
@@ -139,13 +142,13 @@ class Narrator
             ItemType mType;
             string mIdentifier;
             string mClass;
-            vector <MessageParameter>vParameters;
+            Message *mMessage;
         };
 
         int numPlaylistItems();
         queue <PlaylistItem> mPlaylist;
 
-        vector <MessageParameter>vParameters;
+        //vector <MessageParameter>vParameters;
 
         void setState(threadState state);
         threadState getState();

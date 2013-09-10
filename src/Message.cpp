@@ -152,7 +152,9 @@ bool Message::load(string identifier, string cls)
     count = 0;
     while(result2.loadRow()) {
         //result2.printRow();
-        addParameter(result2.getText(0), result2.getText(1));
+        if(!setParameterType(result2.getText(0), result2.getText(1))){
+            LOG4CXX_WARN(narratorMsgLog, "Could not set parameter: " << result2.getText(0) << " to type: " << result2.getText(1));
+        }
         count++;
 
     }
@@ -771,26 +773,14 @@ int Message::findParameterIdx(const string &key)
     return -1;
 }
 
-
-bool Message::loadParameterValues(const vector<MessageParameter> &param)
-{
-    string key = "";
-    vector <MessageParameter>::const_iterator i;
-    i = param.begin();
-    while(i != param.end()) {
-        key = (*i).getKey();
-
-        int idx = findParameterIdx(key);
-        if(idx == -1) {
-            LOG4CXX_ERROR(narratorMsgLog, "Failed to set parameter value for key '" << key << "'");
-            return false;
-        }
-
-        vParameters[idx].setStringValue((*i).getStringValue());
-        vParameters[idx].setIntValue((*i).getIntValue());
-        i++;
+bool Message::setParameterType(string key, string type) {
+    int idx = findParameterIdx(key);
+    if(idx == -1) {
+        LOG4CXX_ERROR(narratorMsgLog, "Failed to set parameter value for key '" << key << "'");
+        return false;
     }
 
+    vParameters[idx].setType(type);
     return true;
 }
 
