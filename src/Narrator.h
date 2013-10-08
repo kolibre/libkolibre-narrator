@@ -41,6 +41,7 @@ using namespace std;
 
 class Filter;
 class PortAudio;
+class Message;
 class MessageParameter;
 
 class Narrator
@@ -96,6 +97,7 @@ class Narrator
 
         void setParameter(const string &key, int value);
         void setParameter(const string &key, const string &value);
+        void setParameterType(const string &key, const string &value);
 
         bool setLanguage(string lang);
         string getLanguage();
@@ -110,13 +112,13 @@ class Narrator
         bool addMp3Audio(const char *identifier, const char *data, int size);
 
     private:
-        enum threadState { DEAD, WAIT, PLAY, RESET, EXIT };
+        enum threadState { DEAD, WAIT, PLAY, EXIT };
 
         static Narrator *pinstance;
 
         bool setupThread();
         /*! \cond PRIVATE */
-        friend void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch, Narrator::threadState& state );
+        friend void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch );
         friend void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter, float* buffer );
         friend void *narrator_thread(void *narrator);
         /*! \endcond */
@@ -125,12 +127,14 @@ class Narrator
 
         string mLanguage;
         string mDatabasePath;
+        Message *nextMessage;
 
         float mVolumeGain;
         float mTempo;
         float mPitch;
 
         bool bPushCommandFinished;
+        bool bResetFlag;
 
         enum ItemType { type_unknown, type_message, type_resource };
 
@@ -138,16 +142,17 @@ class Narrator
             ItemType mType;
             string mIdentifier;
             string mClass;
-            vector <MessageParameter>vParameters;
+            Message *mMessage;
         };
 
         int numPlaylistItems();
         queue <PlaylistItem> mPlaylist;
 
-        vector <MessageParameter>vParameters;
+        //vector <MessageParameter>vParameters;
 
         void setState(threadState state);
         threadState getState();
+        string getState_str(threadState);
         threadState mState;
 
         void audioFinishedPlaying();

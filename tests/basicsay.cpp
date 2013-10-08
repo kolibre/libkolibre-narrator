@@ -39,10 +39,20 @@ int main(int argc, char **argv)
     char* srcdir = getenv("srcdir");
     if(!srcdir)
         srcdir = ".";
-    string file = string(srcdir) + string("/aktuell_sida.ogg");
-    speaker->playFile(file);
-    do { sleep(1); } while (speaker->isSpeaking());
+    string file1 = string(srcdir) + string("/testdata/file1.ogg");
+    string file2 = string(srcdir) + string("/testdata/file2.ogg");
+    string file3 = string(srcdir) + string("/testdata/file3.ogg");
+
+    speaker->playFile(file1);
+    speaker->playFile(file2);
+    usleep(500000);
+    speaker->stop();
+    speaker->playFile(file3);
+    while (speaker->isSpeaking());
     assert(narratorDone);
+
+    // stop thread and delete instance before exiting
+    delete speaker;
 
     return 0;
 }

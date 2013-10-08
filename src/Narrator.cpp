@@ -95,6 +95,8 @@ Narrator::Narrator()
     mLanguage = "en";
     mDatabasePath = "";
     bPushCommandFinished = true;
+    bResetFlag = false;
+    nextMessage = NULL;
 
     pthread_mutex_lock(narratorMutex);
     pthread_mutex_unlock(narratorMutex);
@@ -229,9 +231,9 @@ void Narrator::setDatabasePath(string path)
 string Narrator::getDatabasePath()
 {
     string path;
-    pthread_mutex_lock(narratorMutex);
+    //pthread_mutex_lock(narratorMutex);
     path = mDatabasePath;
-    pthread_mutex_unlock(narratorMutex);
+    //pthread_mutex_unlock(narratorMutex);
     return path;
 }
 
@@ -509,9 +511,15 @@ bool Narrator::setupThread() {
  */
 void Narrator::setParameter(const string &key, int value)
 {
+    LOG4CXX_DEBUG(narratorLog, "Got parameter: " << key << ", with value: " << value);
     MessageParameter mp(key);
     mp.setIntValue(value);
-    vParameters.push_back(mp);
+
+    pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    nextMessage->addParameter(mp);
+    pthread_mutex_unlock(narratorMutex);
 }
 
 /**
@@ -522,9 +530,13 @@ void Narrator::setParameter(const string &key, int value)
  */
 void Narrator::setParameter(const string &key, const string &value)
 {
-    MessageParameter mp(key);
-    mp.setStringValue(value);
-    vParameters.push_back(mp);
+    LOG4CXX_DEBUG(narratorLog, "Got parameter: " << key << ", with value: " << value);
+
+    pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    nextMessage->setParameterValue(key, value);
+    pthread_mutex_unlock(narratorMutex);
 }
 
 /**
@@ -538,10 +550,12 @@ void Narrator::play(const char *identifier)
 
     pi.mIdentifier = identifier;
     pi.mClass = "prompt";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -557,10 +571,13 @@ void Narrator::playFile(const string filepath)
 
     pi.mIdentifier = filepath;
     pi.mClass = "file";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -577,10 +594,13 @@ void Narrator::play(int number)
     setParameter("number", number);
     pi.mIdentifier = "{number}";
     pi.mClass = "number";
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    if(nextMessage == NULL)
+        nextMessage = new Message();
+
+    pi.mMessage = nextMessage;
+    nextMessage = NULL;
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -598,10 +618,9 @@ void Narrator::playResource(string str, string cls)
 
     pi.mIdentifier = str;
     pi.mClass = cls;
-    pi.vParameters = vParameters;
-    vParameters.clear();
 
     pthread_mutex_lock(narratorMutex);
+    pi.mMessage = new Message();
     mPlaylist.push(pi);
     pthread_mutex_unlock(narratorMutex);
 }
@@ -759,7 +778,7 @@ void Narrator::spell(string word)
                 case 95: // _
                 case 126: // ~
                     LOG4CXX_DEBUG(narratorLog, "symbol '" << c << "'");
-                    playResource(s, "letter");
+                    playResource(s, "symbol");
                     break;
                 default:
                     LOG4CXX_WARN(narratorLog, "character not supported");
@@ -792,7 +811,7 @@ void Narrator::playDate(int day, int month, int year)
     setParameter("year", year);
     setParameter("yearnum", year);
 
-    // Calculate the day this date ocurred (http://users.aol.com/s6sj7gt/mikecal.htm)
+    // Calculate the day this date occurred (http://users.aol.com/s6sj7gt/mikecal.htm)
     int daynum = (day+=month<3?year--:year-2,23*month/9+day+4+year/4-year/100+year/400)%7;
     setParameter("dayname", daynum);
 
@@ -845,13 +864,14 @@ void Narrator::stop()
     // Clear the list
     while(!mPlaylist.empty()) {
         //LOG4CXX_DEBUG(narratorLog, "Removing :'" << mPlaylist.front());
+        delete(mPlaylist.front().mMessage);
         mPlaylist.pop();
     }
     pthread_mutex_unlock (narratorMutex);
 
     // Tell the playbackthread to stop playing
     pthread_mutex_lock(narratorMutex);
-    mState = Narrator::RESET;
+    bResetFlag = true;
     pthread_mutex_unlock(narratorMutex);
 }
 
@@ -862,8 +882,13 @@ void Narrator::stop()
  */
 void Narrator::setState(Narrator::threadState state)
 {
+
     pthread_mutex_lock(narratorMutex);
-    mState = state;
+    if(mState == Narrator::EXIT) {
+        LOG4CXX_INFO(narratorLog, "Narrator in state:" << getState_str(mState) << ", not changing to state: " << getState_str(state));
+    }
+    else
+        mState = state;
     pthread_mutex_unlock(narratorMutex);
 }
 
@@ -891,7 +916,7 @@ bool Narrator::isSpeaking()
 {
     Narrator::threadState state = getState();
 
-    if(state == Narrator::PLAY || state == Narrator::RESET) return true;
+    if(state == Narrator::PLAY || mPlaylist.size() > 0) return true;
     else return false;
 }
 
@@ -903,12 +928,22 @@ bool Narrator::isSpeaking()
 string Narrator::getState_str()
 {
     Narrator::threadState state = getState();
+    return getState_str(state);
+}
+
+/**
+ * Getter for narrator state as a human readable
+ *
+ * @param state to convert
+ * @return Narrator state as a string
+ */
+string Narrator::getState_str(Narrator::threadState state)
+{
     switch(state)
     {
         case Narrator::DEAD: return "Narrator::DEAD";
         case Narrator::WAIT: return "Narrator::WAIT";
         case Narrator::PLAY: return "Narrator::PLAY";
-        case Narrator::RESET: return "Narrator::RESET";
         case Narrator::EXIT: return "Narrator::EXIT";
     }
 
@@ -934,17 +969,15 @@ int Narrator::numPlaylistItems()
 /**
  * Called from the narrator_thread to adjust playback parameters.
  *
- * @param n reference to the narrotr to adjust
- * @param filter Audio filter
+ * @param n reference to the narrator to adjust
+ * @param filter audio filter
  * @param gain new gain
  * @param tempo new tempo
  * @param pitch new pitch
- * @param state new state
  */
-void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch, Narrator::threadState& state )
+void adjustGainTempoPitch(Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch)
 {
     pthread_mutex_lock(n->narratorMutex);
-    state = n->mState;
     if(gain != n->mVolumeGain) {
         gain = n->mVolumeGain;
         LOG4CXX_DEBUG(narratorLog, "Setting gain(" << gain << ")");
@@ -1043,8 +1076,9 @@ void *narrator_thread(void *narrator)
 
             // Break if we during the pause got some more queued items to play
             if(queueitems == 0) {
+                if(state != Narrator::DEAD)
+                    n->audioFinishedPlaying();
                 n->setState(Narrator::WAIT);
-                n->audioFinishedPlaying();
                 LOG4CXX_INFO(narratorLog, "Narrator in WAIT state");
                 portaudio.stop();
 
@@ -1056,14 +1090,13 @@ void *narrator_thread(void *narrator)
                     queueitems = n->numPlaylistItems();
                 }
             }
-
             LOG4CXX_INFO(narratorLog, "Narrator starting playback");
-
         }
 
         if(state == Narrator::EXIT) break;
 
         n->setState(Narrator::PLAY);
+        n->bResetFlag = false;
 
         Narrator::PlaylistItem pi;
 
@@ -1105,8 +1138,8 @@ void *narrator_thread(void *narrator)
             //buffer = (short*)malloc(sizeof(short) * 2 * BUFFERSIZE);
             // long totalSamplesRead = 0;
             do {
-                // Check for changes in state, gain, tempo and pitch
-                adjustGainTempoPitch( n, filter, gain, tempo, pitch, state );
+                // change gain, tempo and pitch
+                adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                 // read some stuff from the oggstream
                 inSamples = oggstream.read(buffer, BUFFERSIZE*2);
@@ -1121,8 +1154,9 @@ void *narrator_thread(void *narrator)
                 }
 
                 writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                state = n->getState();
 
-            } while (inSamples != 0 && state == Narrator::PLAY);
+            } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
             if(buffer != NULL) delete [] (buffer);
             oggstream.close();
@@ -1133,14 +1167,19 @@ void *narrator_thread(void *narrator)
             vector <MessageAudio> vAudioQueue;
 
             // Get a list of MessageAudio objects to play
-            Message m;
-            m.setLanguage(lang);
-            m.load(pi.mIdentifier, pi.mClass);
-            m.loadParameterValues(pi.vParameters);
-            if(!m.compile() || !m.hasAudio()) {
+
+            Message *m = pi.mMessage;
+            if(m==NULL){
+                LOG4CXX_ERROR(narratorLog, "Message was null");
+            }
+
+            m->setLanguage(lang);
+            m->load(pi.mIdentifier, pi.mClass);
+
+            if(!m->compile() || !m->hasAudio()) {
                 LOG4CXX_ERROR(narratorLog, "Narrator translation not found: could not find audio for '" << pi.mIdentifier << "'");
             } else {
-                vAudioQueue = m.getAudioQueue();
+                vAudioQueue = m->getAudioQueue();
             }
 
             // Play what we got
@@ -1172,8 +1211,8 @@ void *narrator_thread(void *narrator)
                     buffer = (float*)malloc(sizeof(float) * 2 * BUFFERSIZE);
 
                     do {
-                        // Check for changed state, gain, tempo or pitch
-                        adjustGainTempoPitch( n, filter, gain, tempo, pitch, state );
+                        // change gain, tempo and pitch
+                        adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                         // read some stuff from the oggstream
                         inSamples = oggstream.read(buffer, BUFFERSIZE);
@@ -1186,19 +1225,23 @@ void *narrator_thread(void *narrator)
                         }
 
                         writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                        state = n->getState();
 
-                    } while (inSamples != 0 && state == Narrator::PLAY);
+                    } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
                     if(buffer != NULL) free(buffer);
                     oggstream.close();
                     audio++;
 
-                } while(audio != vAudioQueue.end() && state == Narrator::PLAY);
+                } while(audio != vAudioQueue.end() && state == Narrator::PLAY && !n->bResetFlag);
             }
+            //Cleanup message object
+            delete(pi.mMessage);
         }
 
         // Abort stream?
-        if(state != Narrator::PLAY) {
+        if(n->bResetFlag) {
+            n->bResetFlag = false;
             filter.clear();
             portaudio.abort();
         }

@@ -46,6 +46,11 @@ MessageHandler::MessageHandler()
     }
 }
 
+MessageHandler::~MessageHandler()
+{
+    if(db) delete db;
+}
+
 /// Message handling routines
 long MessageHandler::updateMessage(const Message &msg)
 {
@@ -66,7 +71,7 @@ long MessageHandler::updateMessage(const Message &msg)
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "%s: Query failed '" << db->getLasterror() << "'");
         return false;
@@ -96,7 +101,7 @@ long MessageHandler::updateMessage(const Message &msg)
             LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         }
 
-        DBResult result2;
+        narrator::DBResult result2;
         if(!db->perform(&result2)) {
             LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
             return -1;
@@ -108,7 +113,7 @@ long MessageHandler::updateMessage(const Message &msg)
             LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         }
 
-        DBResult result3;
+        narrator::DBResult result3;
         if(!db->perform(&result3)) {
             LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
             return -1;
@@ -132,7 +137,7 @@ long MessageHandler::findMessage(const Message &msg)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -161,7 +166,7 @@ long MessageHandler::checkMessage(const Message &msg)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -244,7 +249,7 @@ long MessageHandler::checkParameter(long messageid, const MessageParameter &mp)
     }
 
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -320,7 +325,7 @@ long MessageHandler::insertParameter(long messageid, const MessageParameter &mp)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {;
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -401,7 +406,7 @@ long MessageHandler::insertMessage(const Message &msg)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -456,7 +461,7 @@ long MessageHandler::checkTranslation(long messageid, const MessageTranslation &
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -508,7 +513,7 @@ long MessageHandler::insertTranslation(long messageid, const MessageTranslation 
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -574,7 +579,7 @@ long MessageHandler::checkAudio(long translationid, const MessageAudio &ma)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
@@ -633,7 +638,7 @@ long MessageHandler::insertAudio(long translationid, const MessageAudio &ma)
         return -1;
     }
 
-    DBResult result;
+    narrator::DBResult result;
     if(!db->perform(&result)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;

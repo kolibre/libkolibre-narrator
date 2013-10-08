@@ -41,7 +41,8 @@ int pa_stream_callback(
 
 void pa_stream_finished_callback( void *userData );
 
-PortAudio::PortAudio()
+PortAudio::PortAudio():
+    ringbuf(RINGBUFFERSIZE)
 {
     isInitialized = true;
     isOpen = false;
@@ -58,9 +59,6 @@ PortAudio::PortAudio()
         LOG4CXX_ERROR(narratorPaLog, "Failed to initialize portaudio: " << Pa_GetErrorText(mError));
         isInitialized = false;
     }
-
-    //LOG4CXX_INFO(narratorPaLog, "Initializing ringbuffer");
-    ringbuf = new RingBuffer(RINGBUFFERSIZE);
 }
 
 PortAudio::~PortAudio()
@@ -69,8 +67,6 @@ PortAudio::~PortAudio()
 
     if(isInitialized)
         Pa_Terminate();
-
-    if(ringbuf) delete ringbuf;
 }
 
 bool PortAudio::open(long rate, int channels)
@@ -134,7 +130,7 @@ long PortAudio::stop()
         if(mError != paNoError)
             LOG4CXX_ERROR(narratorPaLog, "Failed to stop stream: " << Pa_GetErrorText(mError));
 
-        ringbuf->flush();
+        ringbuf.flush();
         isStarted = false;
     }
 
@@ -149,7 +145,7 @@ long PortAudio::abort()
         if(mError != paNoError)
             LOG4CXX_ERROR(narratorPaLog, "Failed to abort stream: " << Pa_GetErrorText(mError));
 
-        ringbuf->flush();
+        ringbuf.flush();
         isStarted = false;
     }
 
@@ -175,7 +171,7 @@ bool PortAudio::close()
 
 long PortAudio::getRemainingms()
 {
-    size_t bufferedData = ringbuf->getReadAvailable();
+    size_t bufferedData = ringbuf.getReadAvailable();
 
     long bufferms = 0;
 
@@ -194,9 +190,10 @@ unsigned int PortAudio::getWriteAvailable()
 {
     size_t writeAvailable = 0;
     int waitCount = 0;
+    int failCount = 0;
 
     while( writeAvailable == 0 ) {
-        writeAvailable = ringbuf->getWriteAvailable();
+        writeAvailable = ringbuf.getWriteAvailable();
 
         if( writeAvailable == 0 ) {
             usleep(200000); //200 ms
@@ -208,7 +205,7 @@ unsigned int PortAudio::getWriteAvailable()
 
             mError = Pa_AbortStream(pStream);
             // If abortstream fails, try reopening
-            if(mError != paNoError && mError != paStreamIsStopped) {
+            if(failCount++ > 0 || ( mError != paNoError && mError != paStreamIsStopped )) {
                 LOG4CXX_ERROR(narratorPaLog, "Failed to abort stream, trying to close and reopen: " << Pa_GetErrorText(mError));
 
                 mError = Pa_CloseStream(pStream);
@@ -232,7 +229,7 @@ unsigned int PortAudio::getWriteAvailable()
 
 bool PortAudio::write(float *buffer, unsigned int samples)
 {
-    size_t elemWritten = ringbuf->writeElements(buffer, samples*mChannels);
+    size_t elemWritten = ringbuf.writeElements(buffer, samples*mChannels);
 
     // Try starting the stream
     if(!isStarted) {
@@ -275,7 +272,7 @@ int pa_stream_callback(
 
     static long underrunms = 0;
 
-    RingBuffer *ringbuf = ((PortAudio*)userData)->ringbuf;
+    RingBuffer *ringbuf = &((PortAudio*)userData)->ringbuf;
 
     size_t availableElements = ringbuf->getReadAvailable();
 

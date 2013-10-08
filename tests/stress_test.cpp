@@ -28,6 +28,7 @@ class NarratorControl
         Narrator *speaker;
 
         NarratorControl();
+        ~NarratorControl();
 
         void narratorDoneSlot();
         void stress();
@@ -43,6 +44,12 @@ NarratorControl::NarratorControl():
 
 }
 
+NarratorControl::~NarratorControl()
+{
+    // stop thread and delete instance before exiting
+    delete speaker;
+}
+
 void NarratorControl::narratorDoneSlot() {
     std::cout << "narrator finished playback" << endl;
 }
@@ -50,6 +57,7 @@ void NarratorControl::narratorDoneSlot() {
 void NarratorControl::stress() {
     int counter = 0;
     while(counter++ < 150) {
+        std::cout << "Stress iterator: " << counter << endl;
         speaker->play("Monday");
         speaker->playDate(1,1,1970);
         speaker->playTime(12,12,12);
@@ -66,7 +74,7 @@ int main(int argc, char **argv)
 {
     setup_logging();
 
-    NarratorControl narratorcontrol; 
+    NarratorControl narratorcontrol;
     narratorcontrol.stress();
     sleep(1);
     assert(!narratorcontrol.speaker->isSpeaking());

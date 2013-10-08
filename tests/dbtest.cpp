@@ -36,7 +36,10 @@ int readData(std::string file, char ** buffer){
     ifstream is;
     try {
         is.open (file.c_str(), ios::binary );
-
+        if (is.fail()){
+            cout << "Could not open file: " << file << endl;
+            return -1;
+        }
         // get length of file:
         is.seekg (0, ios::end);
         length = is.tellg();
@@ -74,8 +77,8 @@ int main(int argc, char **argv)
     char* srcdir = getenv("srcdir");
     if(!srcdir)
         srcdir = ".";
-    file = string(srcdir) + string("/aktuell_sida.ogg");
-    identifier = "Aktuell sida";
+    file = string(srcdir) + string("/testdata/file1.ogg");
+    identifier = "File one";
 
     /*
      * try inserting ogg audio -> expect successful insert
@@ -86,6 +89,7 @@ int main(int argc, char **argv)
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
@@ -94,19 +98,20 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     /*
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    identifier = "aktuell Sida";
+    identifier = "file One";
     if (!speaker->hasOggAudio(identifier.c_str()))
     {
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
@@ -115,19 +120,20 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
 
     /*
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    identifier = "Aktuell Sida";
+    identifier = "File One";
     if (!speaker->hasOggAudio(identifier.c_str()))
     {
         // add ogg audio to database
         char *data = NULL;
         int size = readData(file, &data);
+        assert(size>=0);
         bool result = speaker->addOggAudio(identifier.c_str(), data, size);
         free(data);
         assert(result);
@@ -136,8 +142,11 @@ int main(int argc, char **argv)
 
     // play added audio
     speaker->play(identifier.c_str());
-    do { sleep(1); } while (speaker->isSpeaking());
+    while (speaker->isSpeaking());
     assert(narratorDone);
+
+    // stop thread and delete instance before exiting
+    delete speaker;
 
     return 0;
 }

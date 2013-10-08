@@ -201,7 +201,7 @@ class Message {
 
         bool setParameterValue(const string &key, const string &value);
         bool setParameterValue(const string &key, int value);
-        bool loadParameterValues(const vector<MessageParameter>&params);
+        bool setParameterType(string key, string type);
 
         // Queue functions for recursive compiling
         bool appendAudioQueue(const MessageAudio &);
@@ -220,6 +220,7 @@ class Message {
         const vector<MessageParameter>& getParameters() const { return vParameters; };
 
         void addParameter(string key, string type);
+        void addParameter(MessageParameter mp);
         int findParameterIdx(const string &key);
         int numParameters() const { return vParameters.size(); };
         const MessageParameter &getParameter(int idx) const { return vParameters[idx]; };

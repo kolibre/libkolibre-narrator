@@ -24,9 +24,10 @@ Documentation
 Kolibre client developer documentation is available at 
 https://github.com/kolibre/libkolibre-builder/wiki
 
-This library is documented using doxygen.
+This library is documented using doxygen. Generate documentation by executing
 
-Type ./configure && make doxygen-doc to generate documentation.
+    $ ./configure
+    $ make doxygen-doc
 
 
 Platforms
@@ -52,13 +53,14 @@ Major dependencies for libkolibre-narrator:
 Building from source
 ---------------------------------
 If building from GIT sources, first do a:
-$ autoreconf -fi
+
+    $ autoreconf -fi
 
 If building from a release tarball you can skip the above step.
 
-$ ./configure
-$ make
-$ make install
+    $ ./configure
+    $ make
+    $ make install
 
 see INSTALL for detailed instructions.
 

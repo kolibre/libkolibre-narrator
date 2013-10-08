@@ -25,10 +25,10 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-class DBResult;
 
 namespace narrator {
 
+class DBResult;
 class DB {
     public:
         DB(const string &);
@@ -83,7 +83,6 @@ class DB {
         int rc;
 };
 
-}
 
 class DBResult {
     public:
@@ -122,4 +121,5 @@ class DBResult {
         sqlite3_stmt *pStatement;
 };
 
+}
 #endif

@@ -290,8 +290,6 @@ bool DB::perform(DBResult *result)
     return ret;
 }
 
-}
-
 DBResult::DBResult()
 {
     pDBHandle = NULL;
@@ -352,7 +350,7 @@ int DBResult::step()
             break;
 
         default:
-            //printf("DB: error code: %d\n", rc);
+            LOG4CXX_ERROR(narratorDbLog, "DB: error code: " << rc);
             bError = true;
             mLasterror = sqlite3_errmsg(pDBHandle);
     }
@@ -455,4 +453,6 @@ long DBResult::getDataSize(const long column)
         return sqlite3_column_bytes(pStatement, column);
 
     return 0;
+}
+
 }

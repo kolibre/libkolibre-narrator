@@ -90,8 +90,8 @@
 # Numbers
 #
 
-"plus";"..plus.."
-"minus";"..minus.."
+"plus";"plus"
+"minus";"minus"
 "{number}";"{number:number}"
 "zero";"noll";"0"
 "one";"ett";"1"

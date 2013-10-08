@@ -21,7 +21,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #define _PORTAUDIO_H
 
 #include <portaudio.h>
-struct RingBuffer;
+#include "RingBuffer.h"
 
 class PortAudio {
     public:
@@ -56,7 +56,7 @@ class PortAudio {
         int mChannels;
         long mLatency;
 
-        RingBuffer *ringbuf;
+        RingBuffer ringbuf;
 
         friend int pa_stream_callback(
                 const void *input,
