@@ -29,6 +29,7 @@ AM_DISTCHECK_CONFIGURE_FLAGS = "PKG_CONFIG_PATH=${PKG_CONFIG_PATH}"
 promptdir = $(datadir)/libkolibre/narrator
 prompt_DATA = prompts/narrator.csv \
 			  prompts/types.csv \
+			  prompts/en_translations.csv \
 			  prompts/sv_translations.csv \
 			  prompts/fi_translations.csv
 
