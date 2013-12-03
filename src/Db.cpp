@@ -34,11 +34,13 @@ log4cxx::LoggerPtr narratorDbLog(log4cxx::Logger::getLogger("kolibre.narrator.db
 
 using namespace std;
 
+namespace narrator {
+
 int busyHandler(void *pArg1, int iPriorCalls)
 {
     LOG4CXX_WARN(narratorDbLog, "!! DB busyHandler " << iPriorCalls);
     // sleep if handler has been called less than threshold value
-    if (iPriorCalls < 20)
+    if (iPriorCalls < 30)
     {
         // adding a random value here greatly reduces locking
         if (pArg1 < 0)
@@ -50,8 +52,6 @@ int busyHandler(void *pArg1, int iPriorCalls)
     // have sqlite3_exec immediately return SQLITE_BUSY
     return 0;
 }
-
-namespace narrator {
 
 DB::DB(const string &database)
 {
@@ -67,7 +67,7 @@ DB::DB(sqlite3 *handle)
     pStatement = NULL;
     pDBHandle = handle;
     int sleepMode = 1;
-    sqlite3_busy_handler(pDBHandle, &busyHandler, &sleepMode);
+    sqlite3_busy_handler(pDBHandle, &narrator::busyHandler, &sleepMode);
 }
 
 bool DB::connect()
@@ -86,7 +86,7 @@ bool DB::connect()
     }
 
     int sleepMode = 1;
-    sqlite3_busy_handler(pDBHandle, &busyHandler, &sleepMode);
+    sqlite3_busy_handler(pDBHandle, &narrator::busyHandler, &sleepMode);
 
     bClosedb = true;
     return true;
