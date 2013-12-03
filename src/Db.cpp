@@ -40,7 +40,7 @@ int busyHandler(void *pArg1, int iPriorCalls)
 {
     LOG4CXX_WARN(narratorDbLog, "!! DB busyHandler " << iPriorCalls);
     // sleep if handler has been called less than threshold value
-    if (iPriorCalls < 20)
+    if (iPriorCalls < 30)
     {
         // adding a random value here greatly reduces locking
         if (pArg1 < 0)
