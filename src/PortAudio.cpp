@@ -87,7 +87,7 @@ bool PortAudio::open(long rate, int channels)
         mOutputParameters.device = default_device; /* default output device */
         mOutputParameters.channelCount = channels;
         mOutputParameters.sampleFormat = paFloat32;
-        mOutputParameters.suggestedLatency = 0; //Pa_GetDeviceInfo( mOutputParameters.device )->defaultLowOutputLatency;
+        mOutputParameters.suggestedLatency = Pa_GetDeviceInfo( mOutputParameters.device )->defaultHighOutputLatency;
         mOutputParameters.hostApiSpecificStreamInfo = NULL;
 
         const PaDeviceInfo* devinfo = Pa_GetDeviceInfo(mOutputParameters.device);
@@ -101,7 +101,7 @@ bool PortAudio::open(long rate, int channels)
         framesPerBuffer = 4096;
 #endif
 
-        mError = Pa_OpenStream(&pStream, NULL, &mOutputParameters, rate, framesPerBuffer,
+        mError = Pa_OpenStream(&pStream, NULL, &mOutputParameters, rate, paFramesPerBufferUnspecified,
                 paNoFlag, pa_stream_callback, this);
 
         if(mError != paNoError) {
