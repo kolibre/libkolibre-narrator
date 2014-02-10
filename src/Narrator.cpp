@@ -1241,8 +1241,8 @@ void *narrator_thread(void *narrator)
         // Abort stream?
         if(n->bResetFlag) {
             n->bResetFlag = false;
+            portaudio.stop();
             filter.clear();
-            portaudio.abort();
         }
 
     } while(state != Narrator::EXIT);
