@@ -74,10 +74,10 @@ int main(int argc, char **argv)
     assert(!narratorDone);
 
     std::string file, identifier;
-    char* srcdir = getenv("srcdir");
-    if(!srcdir)
+    string srcdir = getenv("srcdir");
+    if(srcdir.compare(""))
         srcdir = ".";
-    file = string(srcdir) + string("/testdata/file1.ogg");
+    file = srcdir + string("/testdata/file1.ogg");
     identifier = "File one";
 
     /*
