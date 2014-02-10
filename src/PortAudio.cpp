@@ -232,8 +232,8 @@ bool PortAudio::write(float *buffer, unsigned int samples)
     size_t elemWritten = ringbuf.writeElements(buffer, samples*mChannels);
 
     // Try starting the stream
-    if(!isStarted) {
-        //LOG4CXX_INFO(narratorPaLog, "Starting stream");
+    if(!isStarted && ringbuf.getWriteAvailable() <= (RINGBUFFERSIZE/2)) {
+        LOG4CXX_TRACE(narratorPaLog, "Starting stream");
         mError = Pa_StartStream(pStream);
         if(mError != paNoError) {
             LOG4CXX_ERROR(narratorPaLog, "Failed to start stream: " << Pa_GetErrorText(mError));
@@ -241,6 +241,8 @@ bool PortAudio::write(float *buffer, unsigned int samples)
         mLatency = (long) (Pa_GetStreamInfo(pStream)->outputLatency * 1000.0);
         isStarted = true;
     }
+    else if(!isStarted )
+        LOG4CXX_TRACE(narratorPaLog, "Buffering: " << ((RINGBUFFERSIZE - ringbuf.getWriteAvailable()) * 100) / (RINGBUFFERSIZE) << "%");
 
     if( elemWritten < samples)
         return false;
