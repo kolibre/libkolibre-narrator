@@ -232,8 +232,8 @@ bool PortAudio::write(float *buffer, unsigned int samples)
     size_t elemWritten = ringbuf.writeElements(buffer, samples*mChannels);
 
     // Try starting the stream
-    if(!isStarted) {
-        //LOG4CXX_INFO(narratorPaLog, "Starting stream");
+    if(!isStarted && ringbuf.getWriteAvailable() <= (RINGBUFFERSIZE/2)) {
+        LOG4CXX_TRACE(narratorPaLog, "Starting stream");
         mError = Pa_StartStream(pStream);
         if(mError != paNoError) {
             LOG4CXX_ERROR(narratorPaLog, "Failed to start stream: " << Pa_GetErrorText(mError));
@@ -241,6 +241,8 @@ bool PortAudio::write(float *buffer, unsigned int samples)
         mLatency = (long) (Pa_GetStreamInfo(pStream)->outputLatency * 1000.0);
         isStarted = true;
     }
+    else if(!isStarted )
+        LOG4CXX_TRACE(narratorPaLog, "Buffering: " << ((RINGBUFFERSIZE - ringbuf.getWriteAvailable()) * 100) / (RINGBUFFERSIZE) << "%");
 
     if( elemWritten < samples)
         return false;
@@ -270,26 +272,30 @@ int pa_stream_callback(
     (void) timeInfo;    /* Prevent unused variable warning. */
     (void) input; /* Prevent unused variable warning. */
 
+    //if(statusFlags & paOutputUnderflow)
+    //    LOG4CXX_WARN(narratorPaLog, "Output underflow!");
+    //if(statusFlags & paOutputOverflow)
+    //    LOG4CXX_WARN(narratorPaLog, "Output overflow!");
+    //if(statusFlags & paPrimingOutput)
+    //    LOG4CXX_WARN(narratorPaLog, "Priming output!");
+
     static long underrunms = 0;
 
     RingBuffer *ringbuf = &((PortAudio*)userData)->ringbuf;
 
-    size_t availableElements = ringbuf->getReadAvailable();
-
     int channels = ((PortAudio*)userData)->mChannels;
     long rate = ((PortAudio*)userData)->mRate;
-    size_t elementsToRead = min( frameCount * channels, availableElements);
 
     float* outbuf = (float*)output;
 
-    size_t elementsRead = ringbuf->readElements(outbuf, elementsToRead);
+    size_t elementsRead = ringbuf->readElements(outbuf, frameCount * channels);
 
     if( elementsRead < frameCount*channels ) {
-        memset( (outbuf+(elementsRead*channels)), 0, (frameCount*channels-elementsRead)*sizeof(float) );
+        memset( (outbuf+(elementsRead)), 0, (frameCount*channels-elementsRead)*sizeof(float) );
         underrunms += (long) (frameCount * 1000.0) / rate;
-        //std::cout << __FUNCTION__ << " Less read than requested, underrun ms:" << underrunms << std::endl;
+        //LOG4CXX_DEBUG(narratorPaLog, " Less read than requested, underrun ms:" << underrunms );
     } else {
-        //std::cout << __FUNCTION__ << " availableElements: " << availableElements << " elementsToRead: " << elementsToRead << " elementsRead:" << elementsRead << std::endl;
+        //LOG4CXX_TRACE(narratorPaLog, " availableElements: " << availableElements << " elementsToRead: " << elementsToRead << " elementsRead:" << elementsRead);
         underrunms = 0;
     }
 
