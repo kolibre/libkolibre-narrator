@@ -1134,7 +1134,7 @@ void *narrator_thread(void *narrator)
 
 
             int inSamples = 0;
-            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[2*BUFFERSIZE];
+            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[oggstream.getChannels()*BUFFERSIZE];
             //buffer = (short*)malloc(sizeof(short) * 2 * BUFFERSIZE);
             // long totalSamplesRead = 0;
             do {
@@ -1142,18 +1142,18 @@ void *narrator_thread(void *narrator)
                 adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                 // read some stuff from the oggstream
-                inSamples = oggstream.read(buffer, BUFFERSIZE*2);
+                inSamples = oggstream.read(buffer, BUFFERSIZE*oggstream.getChannels());
 
                 //printf("Read %d samples from oggstream\n", inSamples);
 
                 if(inSamples != 0) {
                     filter.write(buffer, inSamples); // One sample contains data for all channels here
+                    writeSamplesToPortaudio( n, portaudio, filter, buffer );
                 } else {
                     LOG4CXX_INFO(narratorLog, "Flushing soundtouch buffer");
                     filter.flush();
                 }
 
-                writeSamplesToPortaudio( n, portaudio, filter, buffer );
                 state = n->getState();
 
             } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
@@ -1207,29 +1207,28 @@ void *narrator_thread(void *narrator)
 
 
                     int inSamples = 0;
-                    float *buffer = NULL;
-                    buffer = (float*)malloc(sizeof(float) * 2 * BUFFERSIZE);
+                    soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[oggstream.getChannels()*BUFFERSIZE];
 
                     do {
                         // change gain, tempo and pitch
                         adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                         // read some stuff from the oggstream
-                        inSamples = oggstream.read(buffer, BUFFERSIZE);
+                        inSamples = oggstream.read(buffer, BUFFERSIZE*oggstream.getChannels());
 
                         if(inSamples != 0) {
                             filter.write(buffer, inSamples);
+                            writeSamplesToPortaudio( n, portaudio, filter, buffer );
                         } else {
                             LOG4CXX_INFO(narratorLog, "Flushing soundtouch buffer");
                             filter.flush();
                         }
 
-                        writeSamplesToPortaudio( n, portaudio, filter, buffer );
                         state = n->getState();
 
                     } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
-                    if(buffer != NULL) free(buffer);
+                    if(buffer != NULL) delete [] (buffer);
                     oggstream.close();
                     audio++;
 
