@@ -153,10 +153,10 @@ int main(int argc, char **argv)
 
     // test play file
     narratorDone = false;
-    char* srcdir = getenv("srcdir");
-    if(!srcdir)
+    string srcdir = getenv("srcdir");
+    if(srcdir.compare(""))
         srcdir = ".";
-    string file = string(srcdir) + string("/testdata/file1.ogg");
+    string file = srcdir + string("/testdata/file1.ogg");
     speaker->playFile(file);
     while (speaker->isSpeaking());
     assert(narratorDone);

@@ -36,12 +36,12 @@ int main(int argc, char **argv)
     speaker->setLanguage("sv");
 
     boost::signals2::connection audio_finished_connection = speaker->connectAudioFinished(&narrator_done);
-    char* srcdir = getenv("srcdir");
-    if(!srcdir)
+    string srcdir = getenv("srcdir");
+    if(srcdir.compare(""))
         srcdir = ".";
-    string file1 = string(srcdir) + string("/testdata/file1.ogg");
-    string file2 = string(srcdir) + string("/testdata/file2.ogg");
-    string file3 = string(srcdir) + string("/testdata/file3.ogg");
+    string file1 = srcdir + string("/testdata/file1.ogg");
+    string file2 = srcdir + string("/testdata/file2.ogg");
+    string file3 = srcdir + string("/testdata/file3.ogg");
 
     speaker->playFile(file1);
     speaker->playFile(file2);
