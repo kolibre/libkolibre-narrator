@@ -106,14 +106,32 @@ PKG_CHECK_MODULES(LIBMPG123, libmpg123 >= 1.14.4)
 AC_SUBST(LIBMPG123_CFLAGS)
 AC_SUBST(LIBMPG123_LIBS)
 
-dnl -----------------------------------------------
-dnl Check for portaudio
-dnl -----------------------------------------------
+AC_ARG_WITH([pulseaudio], AS_HELP_STRING([--with-pulseaudio], [use pulseaudio instead of portaudio]))
+AC_ARG_WITH([utils], AS_HELP_STRING([--without-utils], [dont build and install narrator utils]))
+if (test "x$with_pulseaudio" = "xyes") then
+    AUDIOSYSTEM_API=PULSEAUDIO_API
 
-PKG_CHECK_MODULES(PORTAUDIO, portaudio-2.0 >= 19)
+    dnl -----------------------------------------------
+    dnl Check for pulseaudio
+    dnl -----------------------------------------------
 
-AC_SUBST(PORTAUDIO_LIBS)
-AC_SUBST(PORTAUDIO_CFLAGS)
+    PKG_CHECK_MODULES(PULSEAUDIOSIMPLE, libpulse-simple >= 4.0)
+
+    AC_SUBST(PULSEAUDIOSIMPLE_LIBS)
+    AC_SUBST(PULSEAUDIOSIMPLE_CFLAGS)
+else
+    AUDIOSYSTEM_API=PORTAUDIO_API
+
+    dnl -----------------------------------------------
+    dnl Check for portaudio
+    dnl -----------------------------------------------
+
+    PKG_CHECK_MODULES(PORTAUDIO, portaudio-2.0 >= 19)
+
+    AC_SUBST(PORTAUDIO_LIBS)
+    AC_SUBST(PORTAUDIO_CFLAGS)
+fi
+AC_SUBST(AUDIOSYSTEM_API)
 
 dnl -----------------------------------------------
 dnl Check for sqlite3
@@ -178,6 +196,7 @@ AS_IF([test "x$with_utils" != "xno"],
 AC_CONFIG_FILES([Makefile
                  libkolibre-narrator.pc
                  src/Makefile
+                 src/AudioSystemApi.h
                  tests/Makefile])
 AC_OUTPUT
 
