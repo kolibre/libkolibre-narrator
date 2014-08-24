@@ -21,9 +21,10 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #define _PORTAUDIO_H
 
 #include <portaudio.h>
+#include "AudioSystem.h"
 #include "RingBuffer.h"
 
-class PortAudio {
+class PortAudio: public AudioSystem {
     public:
         PortAudio();
         ~PortAudio();
