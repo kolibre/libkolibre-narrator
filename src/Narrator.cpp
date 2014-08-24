@@ -40,10 +40,16 @@ using namespace std;
 
 #define BUFFERSIZE 4096
 
+#include "AudioSystemApi.h"
 #include "Narrator.h"
 #include "OggStream.h"
 #include "Mp3Stream.h"
-#include "PortAudio.h"
+#ifdef PORTAUDIO_API
+    #include "PortAudio.h"
+#endif
+#ifdef PULSEAUDIO_API
+    #include "PulseAudio.h"
+#endif
 #include "Filter.h"
 #include "Message.h"
 #include "MessageHandler.h"
@@ -1031,9 +1037,9 @@ boost::signals2::connection Narrator::connectAudioFinished(const AudioFinishedSl
 }
 
 /**
- * Called from the narrator_thread to copy audio data from the filter to portaudio.
+ * Called from the narrator_thread to copy audio data from the filter to audiosystem.
  */
-void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter, float* buffer )
+void writeSamplesToAudioSystem( Narrator* n, AudioSystem& audiosystem, Filter& filter, float* buffer )
 {
     int outSamples = 0;
     Narrator::threadState state = n->getState();
@@ -1041,7 +1047,7 @@ void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter,
     // See if we have any finished samples
     // One filter sample contains data from all channels
     while((outSamples = filter.numSamples()) != 0 && state == Narrator::PLAY) {
-        int available = portaudio.getWriteAvailable();
+        int available = audiosystem.getWriteAvailable();
 
         LOG4CXX_TRACE(narratorLog, "got available: " << available << ", outSamples: " << outSamples);
 
@@ -1056,7 +1062,7 @@ void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter,
         if(state != Narrator::PLAY)
             LOG4CXX_INFO(narratorLog, "Aborting stream");
 
-        portaudio.write(buffer, outSamples);
+        audiosystem.write(buffer, outSamples);
     }
 }
 
@@ -1076,7 +1082,12 @@ void *narrator_thread(void *narrator)
     float tempo = 0;
     float pitch = 0;
 
-    PortAudio portaudio;
+#ifdef PORTAUDIO_API
+    PortAudio audiosystem;
+#endif
+#ifdef PULSEAUDIO_API
+    PulseAudio audiosystem;
+#endif
     Filter filter;
 
     Narrator::threadState state = n->getState();
@@ -1087,7 +1098,7 @@ void *narrator_thread(void *narrator)
 
         if(queueitems == 0) {
             // Wait a little before calling callback
-            long waitms = portaudio.getRemainingms();
+            long waitms = audiosystem.getRemainingms();
             if(waitms != 0) {
                 LOG4CXX_DEBUG(narratorLog, "Waiting " << waitms << " ms for playback to finish");
                 while(waitms > 0 && queueitems == 0) {
@@ -1103,7 +1114,7 @@ void *narrator_thread(void *narrator)
                     n->audioFinishedPlaying();
                 n->setState(Narrator::WAIT);
                 LOG4CXX_INFO(narratorLog, "Narrator in WAIT state");
-                portaudio.stop();
+                audiosystem.stop();
 
                 while(queueitems == 0) {
                     state = n->getState();
@@ -1162,9 +1173,9 @@ void *narrator_thread(void *narrator)
                 continue;
             }
 
-            if (portaudio.getRate() != audioStream->getRate())
+            if (audiosystem.getRate() != audioStream->getRate())
             {
-                long waitms = portaudio.getRemainingms();
+                long waitms = audiosystem.getRemainingms();
                 if (waitms != 0)
                 {
                     LOG4CXX_DEBUG(narratorLog, "Waiting for current playback to finish");
@@ -1176,8 +1187,8 @@ void *narrator_thread(void *narrator)
                 }
             }
 
-            if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
-                LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << audioStream->getRate() << " channels: " << audioStream->getChannels() << ")");
+            if(!audiosystem.open(audioStream->getRate(), audioStream->getChannels())) {
+                LOG4CXX_ERROR(narratorLog, "error initializing audiosystem, (rate: " << audioStream->getRate() << " channels: " << audioStream->getChannels() << ")");
                 continue;
             }
 
@@ -1204,7 +1215,7 @@ void *narrator_thread(void *narrator)
 
                 if(inSamples != 0) {
                     filter.write(buffer, inSamples); // One sample contains data for all channels here
-                    writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                    writeSamplesToAudioSystem( n, audiosystem, filter, buffer );
                 } else {
                     LOG4CXX_INFO(narratorLog, "Flushing soundtouch buffer");
                     filter.flush();
@@ -1270,9 +1281,9 @@ void *narrator_thread(void *narrator)
                         break;
                     }
 
-                    if (portaudio.getRate() != audioStream->getRate())
+                    if (audiosystem.getRate() != audioStream->getRate())
                     {
-                        long waitms = portaudio.getRemainingms();
+                        long waitms = audiosystem.getRemainingms();
                         if (waitms != 0)
                         {
                             LOG4CXX_DEBUG(narratorLog, "Waiting for current playback to finish");
@@ -1284,8 +1295,8 @@ void *narrator_thread(void *narrator)
                         }
                     }
 
-                    if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
-                        LOG4CXX_ERROR(narratorLog, "error initializing portaudio");
+                    if(!audiosystem.open(audioStream->getRate(), audioStream->getChannels())) {
+                        LOG4CXX_ERROR(narratorLog, "error initializing audiosystem");
                         break;
                     }
 
@@ -1307,7 +1318,7 @@ void *narrator_thread(void *narrator)
 
                         if(inSamples != 0) {
                             filter.write(buffer, inSamples);
-                            writeSamplesToPortaudio( n, portaudio, filter, buffer );
+                            writeSamplesToAudioSystem( n, audiosystem, filter, buffer );
                         } else {
                             LOG4CXX_INFO(narratorLog, "Flushing soundtouch buffer");
                             filter.flush();
@@ -1330,7 +1341,7 @@ void *narrator_thread(void *narrator)
         // Abort stream?
         if(n->bResetFlag) {
             n->bResetFlag = false;
-            portaudio.stop();
+            audiosystem.stop();
             filter.clear();
         }
 

@@ -40,7 +40,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 using namespace std;
 
 class Filter;
-class PortAudio;
+class AudioSystem;
 class Message;
 class MessageParameter;
 
@@ -119,7 +119,7 @@ class Narrator
         bool setupThread();
         /*! \cond PRIVATE */
         friend void adjustGainTempoPitch( Narrator* n, Filter& filter, float& gain, float& tempo, float& pitch );
-        friend void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter, float* buffer );
+        friend void writeSamplesToAudioSystem( Narrator* n, AudioSystem& audiosystem, Filter& filter, float* buffer );
         friend void *narrator_thread(void *narrator);
         /*! \endcond */
         pthread_mutex_t *narratorMutex;
