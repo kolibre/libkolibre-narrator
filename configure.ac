@@ -132,6 +132,7 @@ else
     AC_SUBST(PORTAUDIO_CFLAGS)
 fi
 AC_SUBST(AUDIOSYSTEM_API)
+AM_CONDITIONAL([WITH_PULSEAUDIO], [test "x$with_pulseaudio" = "xyes"])
 
 dnl -----------------------------------------------
 dnl Check for sqlite3

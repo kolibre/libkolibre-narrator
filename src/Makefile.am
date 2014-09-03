@@ -23,9 +23,19 @@ lib_LTLIBRARIES = libkolibre-narrator.la
 library_includedir = $(includedir)/libkolibre/narrator-$(PACKAGE_VERSION)
 library_include_HEADERS = Narrator.h
 
-libkolibre_narrator_la_SOURCES = Narrator.cpp Message.cpp OggStream.cpp Mp3Stream.cpp Filter.cpp RingBuffer.cpp PortAudio.cpp MessageHandler.cpp Db.cpp
-libkolibre_narrator_la_LIBADD = @LOG4CXX_LIBS@ @VORBISFILE_LIBS@ @LIBMPG123_LIBS@ @PORTAUDIO_LIBS@ @SQLITE3_LIBS@ @SOUNDTOUCH_LIBS@
+libkolibre_narrator_la_SOURCES = Narrator.cpp Message.cpp OggStream.cpp Mp3Stream.cpp Filter.cpp RingBuffer.cpp MessageHandler.cpp Db.cpp
+libkolibre_narrator_la_LIBADD = @LOG4CXX_LIBS@ @VORBISFILE_LIBS@ @LIBMPG123_LIBS@ @SQLITE3_LIBS@ @SOUNDTOUCH_LIBS@
 libkolibre_narrator_la_LDFLAGS = -version-info $(VERSION_INFO)
-libkolibre_narrator_la_CPPFLAGS = @LOG4CXX_CFLAGS@ @VORBISFILE_CFLAGS@ @LIBMPG123_CFLAGS@ @PORTAUDIO_CFLAGS@ @SOUNDTOUCH_CFLAGS@
+libkolibre_narrator_la_CPPFLAGS = @LOG4CXX_CFLAGS@ @VORBISFILE_CFLAGS@ @LIBMPG123_CFLAGS@ @SOUNDTOUCH_CFLAGS@
 
-EXTRA_DIST = AudioStream.h AudioSystemApi.h.in AudioSystem.h OggStream.h Mp3Stream.h PortAudio.h Filter.h RingBuffer.h Message.h MessageHandler.h Db.h
+if WITH_PULSEAUDIO
+libkolibre_narrator_la_SOURCES += PulseAudio.cpp
+libkolibre_narrator_la_LIBADD += @PULSEAUDIOSIMPLE_LIBS@
+libkolibre_narrator_la_CPPFLAGS += @PULSEAUDIOSIMPLE_CFLAGS@
+else
+libkolibre_narrator_la_SOURCES += PortAudio.cpp
+libkolibre_narrator_la_LIBADD += @PORTAUDIO_LIBS@
+libkolibre_narrator_la_CPPFLAGS += @PORTAUDIO_CFLAGS@
+endif
+
+EXTRA_DIST = AudioStream.h AudioSystemApi.h.in AudioSystem.h OggStream.h Mp3Stream.h PortAudio.h PulseAudio.h Filter.h RingBuffer.h Message.h MessageHandler.h Db.h
