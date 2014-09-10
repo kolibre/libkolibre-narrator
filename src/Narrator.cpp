@@ -1047,7 +1047,7 @@ void *narrator_thread(void *narrator)
 
     int queueitems;
 
-    // Set initial values to 0 so that they get updated when thread gets playsignal
+    // Set initial values to 0 so that they get updated when thread gets play signal
     float gain = 0;
     float tempo = 0;
     float pitch = 0;
@@ -1057,7 +1057,7 @@ void *narrator_thread(void *narrator)
     OggStream oggstream;
 
     Narrator::threadState state = n->getState();
-    LOG4CXX_INFO(narratorLog, "Starting playbackthread");
+    LOG4CXX_INFO(narratorLog, "Starting playback thread");
 
     do {
         queueitems = n->numPlaylistItems();
