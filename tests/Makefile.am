@@ -17,12 +17,12 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-check_PROGRAMS = ringbuffer_test basicsay dbtest interfacetest stress_test
-TESTS = ringbuffer_test basicsay dbtest.sh interfacetest.sh stress_test.sh
+check_PROGRAMS = ringbuffer basicsay dbtest interfacetest stress_test
+TESTS = ringbuffer basicsay dbtest.sh interfacetest.sh stress_test.sh
 
-ringbuffer_test_CPPFLAGS = @LOG4CXX_CFLAGS@
-ringbuffer_test_SOURCES = ringbuffer_test.cpp
-ringbuffer_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
+ringbuffer_CPPFLAGS = @LOG4CXX_CFLAGS@
+ringbuffer_SOURCES = ringbuffer.cpp
+ringbuffer_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 basicsay_CPPFLAGS = @LOG4CXX_CFLAGS@
 basicsay_SOURCES = basicsay.cpp
