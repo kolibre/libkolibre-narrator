@@ -43,3 +43,5 @@ stress_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 INCLUDES = -I$(top_srcdir)/src
 
 EXTRA_DIST = setup_logging.h dbtest.sh interfacetest.sh stress_test.sh testdata
+
+.NOTPARALLEL:
