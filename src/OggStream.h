@@ -20,11 +20,11 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #ifndef _OGGSTREAM_H
 #define _OGGSTREAM_H
 
-#include "Message.h"
+#include "AudioStream.h"
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
 
-class OggStream
+class OggStream: public AudioStream
 {
     public:
         OggStream();
