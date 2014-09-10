@@ -28,4 +28,4 @@ libkolibre_narrator_la_LIBADD = @LOG4CXX_LIBS@ @VORBISFILE_LIBS@ @PORTAUDIO_LIBS
 libkolibre_narrator_la_LDFLAGS = -version-info $(VERSION_INFO)
 libkolibre_narrator_la_CPPFLAGS = @LOG4CXX_CFLAGS@ @VORBISFILE_CFLAGS@ @PORTAUDIO_CFLAGS@ @SOUNDTOUCH_CFLAGS@
 
-EXTRA_DIST = OggStream.h PortAudio.h Filter.h RingBuffer.h Message.h MessageHandler.h Db.h
+EXTRA_DIST = AudioStream.h OggStream.h PortAudio.h Filter.h RingBuffer.h Message.h MessageHandler.h Db.h
