@@ -1054,7 +1054,6 @@ void *narrator_thread(void *narrator)
 
     PortAudio portaudio;
     Filter filter;
-    OggStream oggstream;
 
     Narrator::threadState state = n->getState();
     LOG4CXX_INFO(narratorLog, "Starting playback thread");
@@ -1116,35 +1115,37 @@ void *narrator_thread(void *narrator)
         if(pi.mClass == "file") {
             LOG4CXX_DEBUG(narratorLog, "Playing file: " << pi.mIdentifier);
 
-            // Open the oggstream
-            if(!oggstream.open(pi.mIdentifier)) {
-                LOG4CXX_ERROR(narratorLog, "Narrator translation not found: Error opening oggstream: " << pi.mIdentifier);
+            //TODO: Determine which type of stream and open the appropriate stream
+            OggStream audioStream;
+
+            if(!audioStream.open(pi.mIdentifier)) {
+                LOG4CXX_ERROR(narratorLog, "error opening audio stream: " << pi.mIdentifier);
                 continue;
             }
 
-            if(!portaudio.open(oggstream.getRate(), oggstream.getChannels())) {
-                LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << oggstream.getRate() << " channels: " << oggstream.getChannels() << ")");
+            if(!portaudio.open(audioStream.getRate(), audioStream.getChannels())) {
+                LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << audioStream.getRate() << " channels: " << audioStream.getChannels() << ")");
                 continue;
             }
 
-            if(!filter.open(oggstream.getRate(), oggstream.getChannels())) {
+            if(!filter.open(audioStream.getRate(), audioStream.getChannels())) {
                 LOG4CXX_ERROR(narratorLog, "error initializing filter");
                 continue;
             }
 
 
             int inSamples = 0;
-            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[oggstream.getChannels()*BUFFERSIZE];
+            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream.getChannels()*BUFFERSIZE];
             //buffer = (short*)malloc(sizeof(short) * 2 * BUFFERSIZE);
             // long totalSamplesRead = 0;
             do {
                 // change gain, tempo and pitch
                 adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
-                // read some stuff from the oggstream
-                inSamples = oggstream.read(buffer, BUFFERSIZE*oggstream.getChannels());
+                // read some stuff from the audio stream
+                inSamples = audioStream.read(buffer, BUFFERSIZE*audioStream.getChannels());
 
-                //printf("Read %d samples from oggstream\n", inSamples);
+                //printf("Read %d samples from audio stream\n", inSamples);
 
                 if(inSamples != 0) {
                     filter.write(buffer, inSamples); // One sample contains data for all channels here
@@ -1159,7 +1160,7 @@ void *narrator_thread(void *narrator)
             } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
             if(buffer != NULL) delete [] (buffer);
-            oggstream.close();
+            audioStream.close();
         }
 
         // Else try opening from database
@@ -1189,32 +1190,34 @@ void *narrator_thread(void *narrator)
                 do {
                     LOG4CXX_INFO(narratorLog, "Saying: " << audio->getText());
 
-                    // Open the oggstream
-                    if(!oggstream.open(*audio)) {
-                        LOG4CXX_ERROR(narratorLog, "error opening oggstream");
+                    //TODO: Determine which type of stream and open the appropriate stream
+                    OggStream audioStream;
+
+                    if(!audioStream.open(*audio)) {
+                        LOG4CXX_ERROR(narratorLog, "error opening audio stream");
                         break;
                     }
 
-                    if(!portaudio.open(oggstream.getRate(), oggstream.getChannels())) {
+                    if(!portaudio.open(audioStream.getRate(), audioStream.getChannels())) {
                         LOG4CXX_ERROR(narratorLog, "error initializing portaudio");
                         break;
                     }
 
-                    if(!filter.open(oggstream.getRate(), oggstream.getChannels())) {
+                    if(!filter.open(audioStream.getRate(), audioStream.getChannels())) {
                         LOG4CXX_ERROR(narratorLog, "error initializing filter");
                         break;
                     }
 
 
                     int inSamples = 0;
-                    soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[oggstream.getChannels()*BUFFERSIZE];
+                    soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream.getChannels()*BUFFERSIZE];
 
                     do {
                         // change gain, tempo and pitch
                         adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
-                        // read some stuff from the oggstream
-                        inSamples = oggstream.read(buffer, BUFFERSIZE*oggstream.getChannels());
+                        // read some stuff from the audio stream
+                        inSamples = audioStream.read(buffer, BUFFERSIZE*audioStream.getChannels());
 
                         if(inSamples != 0) {
                             filter.write(buffer, inSamples);
@@ -1229,7 +1232,7 @@ void *narrator_thread(void *narrator)
                     } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
                     if(buffer != NULL) delete [] (buffer);
-                    oggstream.close();
+                    audioStream.close();
                     audio++;
 
                 } while(audio != vAudioQueue.end() && state == Narrator::PLAY && !n->bResetFlag);
