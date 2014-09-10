@@ -30,25 +30,23 @@ void narrator_done() {
 
 int main(int argc, char **argv)
 {
-    setup_logging();
-    Narrator *speaker = Narrator::Instance();
+    if (argc < 2)
+    {
+        std::cout << "run this test with e.g. " << argv[0] << " /path/to/file" << std::endl;
+        return 1;
+    }
 
+    setup_logging();
+
+    Narrator *speaker = Narrator::Instance();
     speaker->setLanguage("sv");
 
     boost::signals2::connection audio_finished_connection = speaker->connectAudioFinished(&narrator_done);
-    string srcdir = getenv("srcdir");
-    if(srcdir.compare(""))
-        srcdir = ".";
-    string file1 = srcdir + string("/testdata/file1.ogg");
-    string file2 = srcdir + string("/testdata/file2.ogg");
-    string file3 = srcdir + string("/testdata/file3.ogg");
 
-    speaker->playFile(file1);
-    speaker->playFile(file2);
-    usleep(500000);
-    speaker->stop();
-    speaker->playFile(file3);
-    while (speaker->isSpeaking());
+    // play file
+    narratorDone = false;
+    speaker->playFile(argv[1]);
+    do { sleep(1); } while (speaker->isSpeaking());
     assert(narratorDone);
 
     // stop thread and delete instance before exiting
