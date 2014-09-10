@@ -35,8 +35,8 @@ class OggStream
         long read(float* buffer, int bytes);
         bool close();
 
-        long getRate() { return mRate; };
-        long getChannels() { return mChannels; };
+        long getRate();
+        long getChannels();
 
     private:
         OggVorbis_File mStream;

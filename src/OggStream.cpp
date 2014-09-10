@@ -180,3 +180,13 @@ bool OggStream::close()
     }
     return true;
 }
+
+long OggStream::getRate()
+{
+    return mRate;
+}
+
+long OggStream::getChannels()
+{
+    return mChannels;
+}
