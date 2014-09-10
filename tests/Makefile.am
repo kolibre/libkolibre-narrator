@@ -17,20 +17,16 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-check_PROGRAMS = basicsay dbtest interfacetest stress_test ringbuffer_test
+check_PROGRAMS = ringbuffer_test basicsay dbtest interfacetest stress_test
 TESTS = ringbuffer_test basicsay dbtest.sh interfacetest.sh stress_test.sh
-
-stress_test_CPPFLAGS = @LOG4CXX_CFLAGS@
-stress_test_SOURCES = stress_test.cpp
-stress_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
-
-basicsay_CPPFLAGS = @LOG4CXX_CFLAGS@
-basicsay_SOURCES = basicsay.cpp
-basicsay_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 ringbuffer_test_CPPFLAGS = @LOG4CXX_CFLAGS@
 ringbuffer_test_SOURCES = ringbuffer_test.cpp
 ringbuffer_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
+
+basicsay_CPPFLAGS = @LOG4CXX_CFLAGS@
+basicsay_SOURCES = basicsay.cpp
+basicsay_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 dbtest_CPPFLAGS = @LOG4CXX_CFLAGS@
 dbtest_SOURCES = dbtest.cpp
@@ -39,6 +35,10 @@ dbtest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 interfacetest_CPPFLAGS = @LOG4CXX_CFLAGS@
 interfacetest_SOURCES = interfacetest.cpp
 interfacetest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
+
+stress_test_CPPFLAGS = @LOG4CXX_CFLAGS@
+stress_test_SOURCES = stress_test.cpp
+stress_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 INCLUDES = -I$(top_srcdir)/src
 
