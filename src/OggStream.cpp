@@ -75,6 +75,7 @@ bool OggStream::open(const MessageAudio &ma)
                 break;
             default:
                 LOG4CXX_ERROR(narratorOsLog, "MessageAudio id: " << audioid << " unknown error occurred");
+                break;
         }
         return false;
     }
@@ -126,6 +127,7 @@ bool OggStream::open(string path)
                 break;
             default:
                 LOG4CXX_ERROR(narratorOsLog, "File " << path << ": unknown error occurred");
+                break;
         }
         return false;
     }
