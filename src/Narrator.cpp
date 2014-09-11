@@ -42,6 +42,7 @@ using namespace std;
 
 #include "Narrator.h"
 #include "OggStream.h"
+#include "Mp3Stream.h"
 #include "PortAudio.h"
 #include "Filter.h"
 #include "Message.h"
@@ -63,6 +64,13 @@ log4cxx::LoggerPtr narratorLog(log4cxx::Logger::getLogger("kolibre.narrator.narr
 Narrator * Narrator::pinstance = 0;
 
 void *narrator_thread(void *narrator) ;
+
+std::string getFileExtension(const std::string& filename)
+{
+    int start = filename.length() - 3;
+    if (start < 0) return "";
+    return filename.substr(start, filename.length());
+}
 
 /**
  * Get the narrator instance and create if it does not exist
@@ -1115,27 +1123,41 @@ void *narrator_thread(void *narrator)
         if(pi.mClass == "file") {
             LOG4CXX_DEBUG(narratorLog, "Playing file: " << pi.mIdentifier);
 
-            //TODO: Determine which type of stream and open the appropriate stream
-            OggStream audioStream;
+            AudioStream *audioStream;
 
-            if(!audioStream.open(pi.mIdentifier)) {
+            std::string fileExtension = getFileExtension(pi.mIdentifier);
+            if (fileExtension == "ogg")
+            {
+                audioStream = new OggStream;
+            }
+            else if (fileExtension == "mp3")
+            {
+                audioStream = new Mp3Stream;
+            }
+            else
+            {
+                LOG4CXX_ERROR(narratorLog, "extension '" << fileExtension << "' not supported");
+                continue;
+            }
+
+            if(!audioStream->open(pi.mIdentifier)) {
                 LOG4CXX_ERROR(narratorLog, "error opening audio stream: " << pi.mIdentifier);
                 continue;
             }
 
-            if(!portaudio.open(audioStream.getRate(), audioStream.getChannels())) {
-                LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << audioStream.getRate() << " channels: " << audioStream.getChannels() << ")");
+            if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
+                LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << audioStream->getRate() << " channels: " << audioStream->getChannels() << ")");
                 continue;
             }
 
-            if(!filter.open(audioStream.getRate(), audioStream.getChannels())) {
+            if(!filter.open(audioStream->getRate(), audioStream->getChannels())) {
                 LOG4CXX_ERROR(narratorLog, "error initializing filter");
                 continue;
             }
 
 
             int inSamples = 0;
-            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream.getChannels()*BUFFERSIZE];
+            soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream->getChannels()*BUFFERSIZE];
             //buffer = (short*)malloc(sizeof(short) * 2 * BUFFERSIZE);
             // long totalSamplesRead = 0;
             do {
@@ -1143,7 +1165,7 @@ void *narrator_thread(void *narrator)
                 adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                 // read some stuff from the audio stream
-                inSamples = audioStream.read(buffer, BUFFERSIZE*audioStream.getChannels());
+                inSamples = audioStream->read(buffer, BUFFERSIZE*audioStream->getChannels());
 
                 //printf("Read %d samples from audio stream\n", inSamples);
 
@@ -1160,7 +1182,8 @@ void *narrator_thread(void *narrator)
             } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
             if(buffer != NULL) delete [] (buffer);
-            audioStream.close();
+            audioStream->close();
+            delete audioStream;
         }
 
         // Else try opening from database
