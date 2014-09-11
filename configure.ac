@@ -98,6 +98,15 @@ AC_SUBST(VORBISFILE_CFLAGS)
 AC_SUBST(VORBISFILE_LIBS)
 
 dnl -----------------------------------------------
+dnl check for libmpg123
+dnl -----------------------------------------------
+
+PKG_CHECK_MODULES(LIBMPG123, libmpg123 >= 1.14.4)
+
+AC_SUBST(LIBMPG123_CFLAGS)
+AC_SUBST(LIBMPG123_LIBS)
+
+dnl -----------------------------------------------
 dnl Check for portaudio
 dnl -----------------------------------------------
 
