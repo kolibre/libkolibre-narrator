@@ -74,6 +74,8 @@ bool Mp3Stream::open(string path)
 // Returns samples (1 sample contains data from all channels)
 long Mp3Stream::read(float* buffer, int bytes)
 {
+    LOG4CXX_TRACE(narratorMsLog, "read " << bytes << " bytes from mp3 file");
+
     unsigned char *bufferDecoded;
     bufferDecoded = (unsigned char*) malloc(bytes * sizeof(unsigned char));
 
@@ -88,6 +90,8 @@ long Mp3Stream::read(float* buffer, int bytes)
         case MPG123_OK:
             break;
     }
+
+    LOG4CXX_TRACE(narratorMsLog, decodedBytes << " bytes decoded");
 
     // convert unsigned char buffer to float buffer
     float *bufptr = buffer;

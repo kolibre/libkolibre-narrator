@@ -154,6 +154,8 @@ bool OggStream::open(string path)
 // Returns samples (1 sample contains data from all channels)
 long OggStream::read(float* buffer, int bytes)
 {
+    LOG4CXX_TRACE(narratorOsLog, "read " << bytes << " bytes from ogg file");
+
     float **pcm;
     long samples_read = ov_read_float(&mStream, &pcm, bytes, &mSection);
     switch(samples_read) {
@@ -164,6 +166,9 @@ long OggStream::read(float* buffer, int bytes)
             LOG4CXX_WARN(narratorOsLog, "Invalid stream section was supplied while playing " << mStreamInfo);
             break;
     }
+
+    LOG4CXX_TRACE(narratorOsLog, samples_read << " samples decoded");
+
     //Convert the samples to a linear vector
     float *bufptr = buffer;
     for (long i = 0; i < samples_read; i++)

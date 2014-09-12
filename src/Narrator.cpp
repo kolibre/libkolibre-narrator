@@ -1029,12 +1029,14 @@ void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter,
     while((outSamples = filter.numSamples()) != 0 && state == Narrator::PLAY) {
         int available = portaudio.getWriteAvailable();
 
-        //LOG4CXX_DEBUG(narratorLog, "Got writeavailable %d, outSamples: %d", available, outSamples);
+        LOG4CXX_TRACE(narratorLog, "got available: " << available << ", outSamples: " << outSamples);
 
         if(available > outSamples) available = outSamples;
 
         if(available > BUFFERSIZE) available = BUFFERSIZE;
         outSamples = filter.read(buffer, available);
+
+        LOG4CXX_TRACE(narratorLog, "write " << outSamples << " samples to audio system");
 
         state = n->getState();
         if(state != Narrator::PLAY)
@@ -1155,6 +1157,7 @@ void *narrator_thread(void *narrator)
                 continue;
             }
 
+            LOG4CXX_DEBUG(narratorLog, "Audio stream has " << audioStream->getChannels() << " channel(s) and rate " << audioStream->getRate() << " Hz");
 
             int inSamples = 0;
             soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream->getChannels()*BUFFERSIZE];
@@ -1166,6 +1169,7 @@ void *narrator_thread(void *narrator)
 
                 // read some stuff from the audio stream
                 inSamples = audioStream->read(buffer, BUFFERSIZE*audioStream->getChannels());
+                LOG4CXX_TRACE(narratorLog, "got " << inSamples << " samples");
 
                 //printf("Read %d samples from audio stream\n", inSamples);
 
