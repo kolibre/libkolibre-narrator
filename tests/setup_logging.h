@@ -40,7 +40,7 @@ void setup_logging()
     log4cxx::ConsoleAppenderPtr console(new log4cxx::ConsoleAppender(layoutPtr));
 
     // set log level
-    logger->setLevel(log4cxx::Level::getInfo());
+    logger->setLevel(log4cxx::Level::getDebug());
 
     // add appenders and other will inherit the settings
     //logger->addAppender(file);
