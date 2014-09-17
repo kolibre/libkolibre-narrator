@@ -23,7 +23,6 @@
 #include <pulse/simple.h>
 #include <pulse/error.h>
 #include "AudioSystem.h"
-#include "RingBuffer.h"
 
 class PulseAudio: public AudioSystem {
     public:
@@ -53,8 +52,6 @@ class PulseAudio: public AudioSystem {
         long mRate;
         int mChannels;
         long mLatency;
-
-        RingBuffer ringbuf;
 
         pa_simple *pSimple;
         pa_sample_spec mSpec;

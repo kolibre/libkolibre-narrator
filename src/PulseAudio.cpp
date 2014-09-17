@@ -28,8 +28,7 @@
 // create logger which will become a child to logger kolibre.narrator
 log4cxx::LoggerPtr narratorPuaLog(log4cxx::Logger::getLogger("kolibre.narrator.pulseaudio"));
 
-PulseAudio::PulseAudio():
-    ringbuf(RINGBUFFERSIZE)
+PulseAudio::PulseAudio()
 {
     isInitialized = true;
     isOpen = false;
@@ -117,73 +116,29 @@ bool PulseAudio::close()
 
 unsigned int PulseAudio::getWriteAvailable()
 {
-    size_t writeAvailable = 0;
-    int waitCount = 0;
-
-    while (writeAvailable == 0)
-    {
-        writeAvailable = ringbuf.getWriteAvailable();
-
-        if (writeAvailable == 0)
-        {
-            usleep(200000); //200 ms
-        }
-
-        if (waitCount++ > 10)
-        {
-            // abort and reopen stream
-            break;
-        }
-    }
-
-    return writeAvailable;
+    return RINGBUFFERSIZE;
 }
 
 long PulseAudio::getRemainingms()
 {
-    size_t bufferedData = ringbuf.getReadAvailable();
-
-    long bufferms = 0;
-
-    if (mChannels != 0 && mRate != 0)
-        bufferms = (long) (1000.0 * bufferedData) / mChannels / mRate;
-
-    return bufferms + mLatency;
+    return 0;
 }
 
 bool PulseAudio::write(float *buffer, unsigned int samples)
 {
-    size_t elemWritten = ringbuf.writeElements(buffer, samples*mChannels);
-
-    // Try starting the stream
-    if (!isStarted && ringbuf.getWriteAvailable() <= (RINGBUFFERSIZE/2))
+    if (!isStarted)
     {
         LOG4CXX_TRACE(narratorPuaLog, "Starting stream");
-        int retVal = pa_simple_write(pSimple, buffer, elemWritten, &mError);
-        if (retVal)
-        {
-            //std::string errMsg(pa_strerror(mError));
-            std::string errMsg = "error";
-            LOG4CXX_ERROR(narratorPuaLog, "Failed to start stream: " << errMsg);
-        }
-
-        pa_usec_t latency;
-        latency = pa_simple_get_latency(pSimple, &mError);
-        if (latency == (pa_usec_t) -1)
-        {
-            //std::string errMsg(pa_strerror(mError));
-            std::string errMsg = "error";
-            LOG4CXX_ERROR(narratorPuaLog, "Failed to get latency: " << errMsg);
-        }
-        mLatency = (long)latency;
-
         isStarted = true;
     }
-    else if (!isStarted)
-        LOG4CXX_TRACE(narratorPuaLog, "Buffering: " << ((RINGBUFFERSIZE - ringbuf.getWriteAvailable()) * 100) / (RINGBUFFERSIZE) << "%");
 
-    if (elemWritten < samples)
-        return false;
+    int retVal = pa_simple_write(pSimple, buffer, samples, &mError);
+    if (retVal)
+    {
+        //std::string errMsg(pa_strerror(mError));
+        std::string errMsg = "error";
+        LOG4CXX_ERROR(narratorPuaLog, "Failed to write samples: " << errMsg);
+    }
 
     return false;
 }
