@@ -106,6 +106,17 @@ long PulseAudio::abort()
 
 bool PulseAudio::close()
 {
+    if (isStarted)
+    {
+        if (pa_simple_drain(pSimple, &mError) < 0)
+        {
+            //std::string errMsg(pa_strerror(mError));
+            std::string errMsg = "error";
+            LOG4CXX_ERROR(narratorPuaLog, "pa_simple_drain() failed: " << errMsg);
+        }
+        isStarted = false;
+    }
+
     if (isOpen)
     {
         pa_simple_free(pSimple);
