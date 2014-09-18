@@ -46,6 +46,8 @@ class Mp3Stream: public AudioStream
         long mRate;
         bool isOpen;
         size_t mFrameSize;
+        float scaleNegative;
+        float scalePositive;
 
         MessageAudio currentAudio;
 };

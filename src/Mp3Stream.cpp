@@ -21,6 +21,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include "Mp3Stream.h"
 
 #include <sstream>
+#include <math.h>
 #include <log4cxx/logger.h>
 
 // create logger which will become a child to logger kolibre.narrator
@@ -35,6 +36,8 @@ Mp3Stream::Mp3Stream()
     mChannels = 0;
     mRate = 0;
     isOpen = false;
+    scaleNegative = powf(2, 16);
+    scalePositive = scaleNegative - 1;
 
     mpg123_init();
     mh = mpg123_new(NULL, &mError);
@@ -76,11 +79,12 @@ long Mp3Stream::read(float* buffer, int bytes)
 {
     LOG4CXX_TRACE(narratorMsLog, "read " << bytes << " bytes from mp3 file");
 
-    unsigned char *bufferDecoded;
-    bufferDecoded = (unsigned char*) malloc(bytes * sizeof(unsigned char));
+    // mpg123 uses enconding MPG123_ENC_SIGNED_16 which results in decoded short samples
+    short *shortBuffer;
+    shortBuffer = new short[bytes*mChannels];
 
-    size_t  decodedBytes = 0;
-    int result = mpg123_read(mh, bufferDecoded, bytes, &decodedBytes);
+    size_t done = 0;
+    int result = mpg123_read(mh, (unsigned char*)shortBuffer, bytes*mChannels*sizeof(short), &done);
 
     switch (result)
     {
@@ -91,15 +95,29 @@ long Mp3Stream::read(float* buffer, int bytes)
             break;
     }
 
-    LOG4CXX_TRACE(narratorMsLog, decodedBytes << " bytes decoded");
+    LOG4CXX_TRACE(narratorMsLog, done << " bytes decoded");
 
-    // convert unsigned char buffer to float buffer
+    // convert short buffer to scaled float buffer
     float *bufptr = buffer;
-    for (int i = 0; i < decodedBytes; i++)
-        *bufptr++ = (float)bufferDecoded[i];
-    free(bufferDecoded);
+    for (int i = 0; i < done/sizeof(short); i++)
+    {
+        int value = (int)shortBuffer[i];
+        if (value == 0)
+        {
+            *buffer++ = 0.f;
+        }
+        else if (value < 0)
+        {
+            *buffer++ = (float)(value/scaleNegative);
+        }
+        else
+        {
+            *buffer++ = (float)(value/scalePositive);
+        }
+    }
+    delete shortBuffer;
 
-    return decodedBytes/mChannels;
+    return done/sizeof(short);
 }
 
 bool Mp3Stream::close()
