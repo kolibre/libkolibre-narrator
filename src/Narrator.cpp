@@ -69,7 +69,9 @@ std::string getFileExtension(const std::string& filename)
 {
     int start = filename.length() - 3;
     if (start < 0) return "";
-    return filename.substr(start, filename.length());
+    std::string ext = filename.substr(start, filename.length());
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    return ext;
 }
 
 /**
