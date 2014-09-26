@@ -61,6 +61,12 @@ int readData(std::string file, char ** buffer){
 
 int main(int argc, char **argv)
 {
+    if (argc < 3)
+    {
+        std::cout << "run this test with e.g. " << argv[0] << " /path/to/file identifier" << std::endl;
+        return 1;
+    }
+
     setup_logging();
 
     Narrator *speaker = Narrator::Instance();
@@ -69,35 +75,24 @@ int main(int argc, char **argv)
     speaker->setDatabasePath("./empty.db");
     speaker->setLanguage("sv");
 
-    speaker->play(10);
-    usleep(500);
-    assert(!narratorDone);
-
-    std::string file, identifier;
-    string srcdir = getenv("srcdir");
-    if(srcdir.compare(""))
-        srcdir = ".";
-    file = srcdir + string("/testdata/file1.ogg");
-    identifier = "File one";
-
     /*
-     * try inserting ogg audio -> expect successful insert
+     * try inserting audio -> expect successful insert
      */
 
-    if (!speaker->hasOggAudio(identifier.c_str()))
+    if (!speaker->hasOggAudio(argv[2]))
     {
         // add ogg audio to database
         char *data = NULL;
-        int size = readData(file, &data);
+        int size = readData(argv[1], &data);
         assert(size>=0);
-        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
+        bool result = speaker->addOggAudio(argv[2], data, size);
         free(data);
         assert(result);
     }
-    assert(speaker->hasOggAudio(identifier.c_str()));
+    assert(speaker->hasOggAudio(argv[2]));
 
     // play added audio
-    speaker->play(identifier.c_str());
+    speaker->play(argv[2]);
     while (speaker->isSpeaking());
     assert(narratorDone);
 
@@ -105,43 +100,20 @@ int main(int argc, char **argv)
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    identifier = "file One";
-    if (!speaker->hasOggAudio(identifier.c_str()))
+    if (!speaker->hasOggAudio("new identifier"))
     {
         // add ogg audio to database
         char *data = NULL;
-        int size = readData(file, &data);
+        int size = readData(argv[1], &data);
         assert(size>=0);
-        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
+        bool result = speaker->addOggAudio("new identifier", data, size);
         free(data);
         assert(result);
     }
-    assert(speaker->hasOggAudio(identifier.c_str()));
+    assert(speaker->hasOggAudio("new identifier"));
 
     // play added audio
-    speaker->play(identifier.c_str());
-    while (speaker->isSpeaking());
-    assert(narratorDone);
-
-    /*
-     * try inserting audio again with different identifier -> expect succussful insert
-     */
-
-    identifier = "File One";
-    if (!speaker->hasOggAudio(identifier.c_str()))
-    {
-        // add ogg audio to database
-        char *data = NULL;
-        int size = readData(file, &data);
-        assert(size>=0);
-        bool result = speaker->addOggAudio(identifier.c_str(), data, size);
-        free(data);
-        assert(result);
-    }
-    assert(speaker->hasOggAudio(identifier.c_str()));
-
-    // play added audio
-    speaker->play(identifier.c_str());
+    speaker->play("new identifier");
     while (speaker->isSpeaking());
     assert(narratorDone);
 
