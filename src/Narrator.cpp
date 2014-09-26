@@ -275,6 +275,17 @@ bool Narrator::hasOggAudio(const char *identifier)
  */
 bool Narrator::hasMp3Audio(const char *identifier)
 {
+    LOG4CXX_DEBUG(narratorLog, "Find audio with identifier: '" << identifier << "'");
+    Message message;
+    message.setString(identifier);
+    message.setClass("userdata");
+
+    // use function in MessageHandler to find message
+    MessageHandler mh;
+    long id = mh.findMessage(message);
+
+    if (id > 0) return true;
+    LOG4CXX_DEBUG(narratorLog, "No entry found for identifier: '" << identifier << "'");
     return false;
 }
 
@@ -326,6 +337,37 @@ bool Narrator::addOggAudio(const char *identifier, const char *data, int size)
  */
 bool Narrator::addMp3Audio(const char *identifier, const char *data, int size)
 {
+    LOG4CXX_DEBUG(narratorLog, "Add audio with identifier: '" << identifier << "'");
+    // create MessageAudio object
+    MessageAudio messageAudio;
+    messageAudio.setTagid(0);
+    messageAudio.setText(identifier);
+    messageAudio.setAudioData(data, size);
+    messageAudio.setSize(size);
+    messageAudio.setLength(0);
+    messageAudio.setEncoding("mp3");
+    messageAudio.setMd5("");
+    messageAudio.setUri("");
+
+    // create MessageTranslation object
+    MessageTranslation messageTranslation;
+    messageTranslation.setLanguage(mLanguage); // use current language
+    messageTranslation.setText(identifier);
+    messageTranslation.setAudiotags("[0]");
+    messageTranslation.addAudio(messageAudio);
+
+    // create Message object
+    Message message;
+    message.setString(identifier);
+    message.setClass("userdata");
+    message.setTranslation(messageTranslation);
+
+    // use function in MessageHandler to insert/update message
+    MessageHandler mh;
+    long id = mh.updateMessage(message);
+
+    if (id > 0) return true;
+    LOG4CXX_WARN(narratorLog, "Failed to add audio with identifier: '" << identifier << "'");
     return false;
 }
 
