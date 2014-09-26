@@ -318,7 +318,7 @@ if __name__ == '__main__':
 			# create table messagetranslation
 			cursor.execute('CREATE TABLE IF NOT EXISTS messagetranslation (message_id INT, translation TEXT, language TEXT, audiotags TEXT)')
 			# create table messageaudio
-			cursor.execute('CREATE TABLE IF NOT EXISTS messageaudio (translation_id INT, tagid INT, text TEXT, size INT, length INT, data BLOB, md5 TEXT)')
+			cursor.execute('CREATE TABLE IF NOT EXISTS messageaudio (translation_id INT, tagid INT, text TEXT, size INT, length INT, encoding TEXT, data BLOB, md5 TEXT)')
 
 			# insert data in db
 			for message in promptmessages:

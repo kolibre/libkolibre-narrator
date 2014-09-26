@@ -137,7 +137,7 @@ bool DB::verifyDBStructure()
     }
 
     if(!prepare("create table if not exists messageaudio \
-                (translation_id INT, tagid INT, text TEXT, size INT, length INT, data BLOB, md5 TEXT)")) {
+                (translation_id INT, tagid INT, text TEXT, size INT, length INT, encoding TEXT, data BLOB, md5 TEXT)")) {
         LOG4CXX_ERROR(narratorDbLog, "Could not create/open messageaudio table: '" << getLasterror() << "'");
         return false;
     }
