@@ -1220,34 +1220,45 @@ void *narrator_thread(void *narrator)
                 do {
                     LOG4CXX_INFO(narratorLog, "Saying: " << audio->getText());
 
-                    //TODO: Determine which type of stream and open the appropriate stream
-                    OggStream audioStream;
+                    AudioStream *audioStream;
 
-                    if(!audioStream.open(*audio)) {
+                    std::string encoding = ((MessageAudio&)*audio).getEncoding();
+                    if (encoding == "ogg")
+                    {
+                        audioStream = new OggStream;
+                    }
+                    else
+                    {
+                        LOG4CXX_ERROR(narratorLog, "encoding '" << encoding << "' not supported");
+                        audio++;
+                        continue;
+                    }
+
+                    if(!audioStream->open(*audio)) {
                         LOG4CXX_ERROR(narratorLog, "error opening audio stream");
                         break;
                     }
 
-                    if(!portaudio.open(audioStream.getRate(), audioStream.getChannels())) {
+                    if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
                         LOG4CXX_ERROR(narratorLog, "error initializing portaudio");
                         break;
                     }
 
-                    if(!filter.open(audioStream.getRate(), audioStream.getChannels())) {
+                    if(!filter.open(audioStream->getRate(), audioStream->getChannels())) {
                         LOG4CXX_ERROR(narratorLog, "error initializing filter");
                         break;
                     }
 
 
                     int inSamples = 0;
-                    soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream.getChannels()*BUFFERSIZE];
+                    soundtouch::SAMPLETYPE* buffer = new soundtouch::SAMPLETYPE[audioStream->getChannels()*BUFFERSIZE];
 
                     do {
                         // change gain, tempo and pitch
                         adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                         // read some stuff from the audio stream
-                        inSamples = audioStream.read(buffer, BUFFERSIZE*audioStream.getChannels());
+                        inSamples = audioStream->read(buffer, BUFFERSIZE*audioStream->getChannels());
 
                         if(inSamples != 0) {
                             filter.write(buffer, inSamples);
@@ -1262,7 +1273,7 @@ void *narrator_thread(void *narrator)
                     } while (inSamples != 0 && state == Narrator::PLAY && !n->bResetFlag);
 
                     if(buffer != NULL) delete [] (buffer);
-                    audioStream.close();
+                    audioStream->close();
                     audio++;
 
                 } while(audio != vAudioQueue.end() && state == Narrator::PLAY && !n->bResetFlag);
