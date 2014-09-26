@@ -21,6 +21,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <Narrator.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include "setup_logging.h"
 
 bool narratorDone = false;
@@ -28,6 +29,15 @@ bool narratorDone = false;
 void narrator_done() {
     std::cout << "narrator finished playback" << endl;
     narratorDone = true;
+}
+
+std::string getFileExtension(const std::string& filename)
+{
+    int start = filename.length() - 3;
+    if (start < 0) return "";
+    std::string ext = filename.substr(start, filename.length());
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    return ext;
 }
 
 int readData(std::string file, char ** buffer){
@@ -75,21 +85,40 @@ int main(int argc, char **argv)
     speaker->setDatabasePath("./empty.db");
     speaker->setLanguage("sv");
 
+    std::string extension = getFileExtension(argv[1]);
+
     /*
      * try inserting audio -> expect successful insert
      */
 
-    if (!speaker->hasOggAudio(argv[2]))
+    if (extension == "ogg")
     {
-        // add ogg audio to database
-        char *data = NULL;
-        int size = readData(argv[1], &data);
-        assert(size>=0);
-        bool result = speaker->addOggAudio(argv[2], data, size);
-        free(data);
-        assert(result);
+        if (!speaker->hasOggAudio(argv[2]))
+        {
+            // add ogg audio to database
+            char *data = NULL;
+            int size = readData(argv[1], &data);
+            assert(size>=0);
+            bool result = speaker->addOggAudio(argv[2], data, size);
+            free(data);
+            assert(result);
+        }
+        assert(speaker->hasOggAudio(argv[2]));
     }
-    assert(speaker->hasOggAudio(argv[2]));
+    else if (extension == "mp3")
+    {
+        if (!speaker->hasMp3Audio(argv[2]))
+        {
+            // add ogg audio to database
+            char *data = NULL;
+            int size = readData(argv[1], &data);
+            assert(size>=0);
+            bool result = speaker->addMp3Audio(argv[2], data, size);
+            free(data);
+            assert(result);
+        }
+        assert(speaker->hasMp3Audio(argv[2]));
+    }
 
     // play added audio
     speaker->play(argv[2]);
@@ -100,17 +129,34 @@ int main(int argc, char **argv)
      * try inserting audio again with different identifier -> expect succussful insert
      */
 
-    if (!speaker->hasOggAudio("new identifier"))
+    if (extension == "ogg")
     {
-        // add ogg audio to database
-        char *data = NULL;
-        int size = readData(argv[1], &data);
-        assert(size>=0);
-        bool result = speaker->addOggAudio("new identifier", data, size);
-        free(data);
-        assert(result);
+        if (!speaker->hasOggAudio("new identifier"))
+        {
+            // add ogg audio to database
+            char *data = NULL;
+            int size = readData(argv[1], &data);
+            assert(size>=0);
+            bool result = speaker->addOggAudio("new identifier", data, size);
+            free(data);
+            assert(result);
+        }
+        assert(speaker->hasOggAudio("new identifier"));
     }
-    assert(speaker->hasOggAudio("new identifier"));
+    else if (extension == "mp3")
+    {
+        if (!speaker->hasMp3Audio("new identifier"))
+        {
+            // add ogg audio to database
+            char *data = NULL;
+            int size = readData(argv[1], &data);
+            assert(size>=0);
+            bool result = speaker->addMp3Audio("new identifier", data, size);
+            free(data);
+            assert(result);
+        }
+        assert(speaker->hasMp3Audio("new identifier"));
+    }
 
     // play added audio
     speaker->play("new identifier");
