@@ -293,6 +293,7 @@ bool Narrator::addOggAudio(const char *identifier, const char *data, int size)
     messageAudio.setAudioData(data, size);
     messageAudio.setSize(size);
     messageAudio.setLength(0);
+    messageAudio.setEncoding("ogg");
     messageAudio.setMd5("");
     messageAudio.setUri("");
 

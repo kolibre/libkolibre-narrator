@@ -62,7 +62,7 @@ class Audio:
 		# generate filenames for wav audio and ogg audio
 		self.wavfile = messagehelper.genfilename(text, basename, audiodir, 'wav')
 		self.oggfile = messagehelper.genfilename(text, basename, audiodir, 'ogg')
-		self.encoding = ''
+		self.encoding = 'ogg'
 
 	def validate(self):
 		"""
