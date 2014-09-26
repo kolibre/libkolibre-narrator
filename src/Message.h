@@ -73,6 +73,9 @@ class MessageAudio {
         void setLength(int length) { mLength = length; };
         int getLength() const { return mLength; };
 
+        void setEncoding(string encoding) { mEncoding = encoding; };
+        const string getEncoding() const { return mEncoding; };
+
         void setAudioData(const char *source, size_t num);
         const char *getAudioData() const { return pAudioData; };
         bool isAudioDataNil() const { return pAudioData == NULL ? true : false; };
@@ -93,6 +96,7 @@ class MessageAudio {
         int mTagid;
         string mText;
         int mLength;
+        string mEncoding;
         string mUri;
         size_t mSize;
         string mMd5;

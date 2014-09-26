@@ -535,7 +535,7 @@ long MessageHandler::updateAudio_with_id(long audioid, const MessageAudio &ma)
         return -1;
     }
 
-    if(!db->prepare("UPDATE messageaudio SET tagid=?, text=?, length=?, data=?, size=?, md5=? WHERE rowid=?")) {
+    if(!db->prepare("UPDATE messageaudio SET tagid=?, text=?, length=?, encoding=?, data=?, size=?, md5=? WHERE rowid=?")) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -543,10 +543,11 @@ long MessageHandler::updateAudio_with_id(long audioid, const MessageAudio &ma)
     if(!db->bind(1, ma.getTagid()) ||
             !db->bind(2, ma.getText().c_str()) ||
             !db->bind(3, ma.getLength()) ||
-            !db->bind(4, ma.getAudioData(), ma.getSize()) ||
-            !db->bind(5, (long)ma.getSize()) ||
-            !db->bind(6, ma.getMd5(), 32, NULL) ||
-            !db->bind(7, audioid)) {
+            !db->bind(4, ma.getEncoding().c_str()) ||
+            !db->bind(5, ma.getAudioData(), ma.getSize()) ||
+            !db->bind(6, (long)ma.getSize()) ||
+            !db->bind(7, ma.getMd5(), 32, NULL) ||
+            !db->bind(8, audioid)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -567,8 +568,9 @@ long MessageHandler::checkAudio(long translationid, const MessageAudio &ma)
     string md5 = "";
     size_t size = 0;
     int length= 0;
+    string encoding = "";
 
-    if(!db->prepare("SELECT rowid, text, size, length, md5 FROM messageaudio WHERE translation_id=? AND tagid=?")) {
+    if(!db->prepare("SELECT rowid, text, size, length, encoding, md5 FROM messageaudio WHERE translation_id=? AND tagid=?")) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -591,7 +593,8 @@ long MessageHandler::checkAudio(long translationid, const MessageAudio &ma)
         text = result.getText(1);
         size = result.getInt(2);
         length = result.getInt(3);
-        md5 = result.getText(4);
+        encoding = result.getText(4);
+        md5 = result.getText(5);
         count++;
     }
 
@@ -613,7 +616,7 @@ long MessageHandler::checkAudio(long translationid, const MessageAudio &ma)
 long MessageHandler::insertAudio(long translationid, const MessageAudio &ma)
 {
     LOG4CXX_INFO(narratorMsgHlrLog, "Inserting new messageaudio for translation with id: " << translationid);
-    LOG4CXX_DEBUG(narratorMsgHlrLog, "tagid: " << ma.getTagid() << ", uri: " << ma.getUri() << ", md5: " << ma.getMd5() << ", size: " << ma.getSize() << ", length: " << ma.getLength());
+    LOG4CXX_DEBUG(narratorMsgHlrLog, "tagid: " << ma.getTagid() << ", uri: " << ma.getUri() << ", md5: " << ma.getMd5() << ", size: " << ma.getSize() << ", length: " << ma.getLength() << ", encoding: " << ma.getEncoding());
 
     int audioid = -1;
 
@@ -622,7 +625,7 @@ long MessageHandler::insertAudio(long translationid, const MessageAudio &ma)
         return -1;
     }
 
-    if(!db->prepare("INSERT INTO messageaudio (translation_id, tagid, text, length, data, size, md5) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+    if(!db->prepare("INSERT INTO messageaudio (translation_id, tagid, text, length, encoding, data, size, md5) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Query failed '" << db->getLasterror() << "'");
         return -1;
     }
@@ -631,9 +634,10 @@ long MessageHandler::insertAudio(long translationid, const MessageAudio &ma)
             !db->bind(2, ma.getTagid()) ||
             !db->bind(3, ma.getText().c_str()) ||
             !db->bind(4, ma.getLength()) ||
-            !db->bind(5, ma.getAudioData(), ma.getSize()) ||
-            !db->bind(6, (long)ma.getSize()) ||
-            !db->bind(7, ma.getMd5(), 32, NULL)) {
+            !db->bind(5, ma.getEncoding().c_str()) ||
+            !db->bind(6, ma.getAudioData(), ma.getSize()) ||
+            !db->bind(7, (long)ma.getSize()) ||
+            !db->bind(8, ma.getMd5(), 32, NULL)) {
         LOG4CXX_ERROR(narratorMsgHlrLog, "Bind failed '" << db->getLasterror() << "'");
         return -1;
     }

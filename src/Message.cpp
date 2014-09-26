@@ -201,7 +201,7 @@ bool Message::load(string identifier, string cls)
     }
 
 
-    if(!db->prepare("select rowid, tagid, text, size, length, md5 from messageaudio where translation_id=? order by tagid")) {
+    if(!db->prepare("select rowid, tagid, text, size, length, encoding, md5 from messageaudio where translation_id=? order by tagid")) {
         LOG4CXX_ERROR(narratorMsgLog, "Query failed '" << db->getLasterror() << "'");
         return false;
     }
@@ -226,7 +226,8 @@ bool Message::load(string identifier, string cls)
         ma->setText(result4.getText(2));
         ma->setSize(result4.getInt(3));
         ma->setLength(result4.getInt(4));
-        ma->setMd5(result4.getText(5));
+        ma->setEncoding(result4.getText(5));
+        ma->setMd5(result4.getText(6));
 
         // Set the db where messageaudio can find data
         LOG4CXX_TRACE(narratorMsgLog, "Adding audio translation " << ma->getAudioid() << ": " << ma->getText());
@@ -977,6 +978,7 @@ MessageAudio::MessageAudio()
     mText = "";
     mSize = 0;
     mLength = 0;
+    mEncoding = "";
     mTagid = 0;
     mAudioid = 0;
     mCurrentPos = 0;

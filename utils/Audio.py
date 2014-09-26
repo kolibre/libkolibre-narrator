@@ -40,6 +40,7 @@ class Audio:
 	text = None
 	size = None
 	length = None
+	encoding = None
 	data = None
 	md5 = None
 
@@ -61,6 +62,7 @@ class Audio:
 		# generate filenames for wav audio and ogg audio
 		self.wavfile = messagehelper.genfilename(text, basename, audiodir, 'wav')
 		self.oggfile = messagehelper.genfilename(text, basename, audiodir, 'ogg')
+		self.encoding = ''
 
 	def validate(self):
 		"""
@@ -79,6 +81,8 @@ class Audio:
 			return 'Error: no size set for audio'
 		if self.length == None:
 			return 'Error: no length set for audio'
+		if self.encoding == None:
+			return 'Error: no encoding set for audio'
 		if self.data == None:
 			return 'Error: no data set for audio'
 		if self.md5 == None:
@@ -97,8 +101,8 @@ class Audio:
 		"""
 		if not self.exists(cursor, translationId):
 			text = unicode(self.text,'utf-8)').encode('latin1')
-			t = (translationId, self.tagid, text, self.size, self.length, self.data, self.md5)
-			cursor.execute('INSERT INTO messageaudio VALUES (?, ?, ?, ?, ?, ?, ?)', t)
+			t = (translationId, self.tagid, text, self.size, self.length, self.encoding, self.data, self.md5)
+			cursor.execute('INSERT INTO messageaudio VALUES (?, ?, ?, ?, ?, ?, ?, ?)', t)
 			self.id = cursor.lastrowid
 		return True
 
