@@ -1269,6 +1269,10 @@ void *narrator_thread(void *narrator)
                     {
                         audioStream = new OggStream;
                     }
+                    else if (encoding == "mp3")
+                    {
+                        audioStream = new Mp3Stream;
+                    }
                     else
                     {
                         LOG4CXX_ERROR(narratorLog, "encoding '" << encoding << "' not supported");
