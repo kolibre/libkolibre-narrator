@@ -22,9 +22,12 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cstdio>
 #include "setup_logging.h"
 
 bool narratorDone = false;
+
+#define DATABASE "./dbtest.db"
 
 void narrator_done() {
     std::cout << "narrator finished playback" << endl;
@@ -82,7 +85,7 @@ int main(int argc, char **argv)
     Narrator *speaker = Narrator::Instance();
     narratorDone = false;
     speaker->connectAudioFinished(&narrator_done);
-    speaker->setDatabasePath("./empty.db");
+    speaker->setDatabasePath(DATABASE);
     speaker->setLanguage("sv");
 
     std::string extension = getFileExtension(argv[1]);
@@ -165,6 +168,9 @@ int main(int argc, char **argv)
 
     // stop thread and delete instance before exiting
     delete speaker;
+
+    // delete database
+    remove(DATABASE);
 
     return 0;
 }
