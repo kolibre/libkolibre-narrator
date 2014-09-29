@@ -156,6 +156,8 @@ class Narrator
         threadState mState;
 
         void audioFinishedPlaying();
+        bool hasAudio(const char *identifier, std::string encoding);
+        bool addAudio(const char *identifier, std::string encoding, const char *data, int size);
 
         AudioFinished m_signal_audio_finished;
 };
