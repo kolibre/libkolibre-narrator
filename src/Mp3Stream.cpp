@@ -20,6 +20,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include "Message.h"
 #include "Mp3Stream.h"
 
+#include <cstdio>
 #include <sstream>
 #include <math.h>
 #include <log4cxx/logger.h>
@@ -36,6 +37,8 @@ Mp3Stream::Mp3Stream()
     mChannels = 0;
     mRate = 0;
     isOpen = false;
+    openTmpFile = false;
+    mTmpFile = "";
     scaleNegative = powf(2, 16);
     scalePositive = scaleNegative - 1;
 
@@ -46,15 +49,44 @@ Mp3Stream::Mp3Stream()
 
 Mp3Stream::~Mp3Stream()
 {
-    if (isOpen) close();
+    close();
     if (mh) mpg123_delete(mh);
     mpg123_exit();
 }
 
 bool Mp3Stream::open(const MessageAudio &ma)
 {
-    LOG4CXX_ERROR(narratorMsLog, "not supported");
-    return false;
+    // opening mp3 audio from database could possibly be done by libmpg123 feed API calls
+    // but since this fearture will bu used very seldom it's sufficient to create temporary files
+    // and let libmpg123 open a file on the filesystem
+
+    size_t bytesToRead = ma.getSize();
+
+    // read audio data from database to buffer
+    LOG4CXX_DEBUG(narratorMsLog, "reading " << bytesToRead << " bytes from database");
+    currentAudio = ma;
+    char *buffer;
+    buffer = (char *) malloc (bytesToRead * sizeof(char));
+    size_t bytesRead = currentAudio.read(buffer, sizeof(char), bytesToRead);
+    currentAudio.close();
+
+    // write buffer data to tmp file
+    mTmpFile = std::tmpnam(NULL);
+    LOG4CXX_DEBUG(narratorMsLog, "creating temporary file " << mTmpFile);
+    FILE *pFile = fopen(mTmpFile.c_str(), "wb");
+    if (pFile == NULL)
+    {
+        LOG4CXX_ERROR(narratorMsLog, "failed to open temporary file");
+        free(buffer);
+        return false;
+    }
+    LOG4CXX_DEBUG(narratorMsLog, "writing " << bytesRead << " bytes to file");
+    fwrite(buffer, sizeof(char), bytesRead, pFile);
+    fclose(pFile);
+    free(buffer);
+
+    openTmpFile = true;
+    return open(mTmpFile);
 }
 
 bool Mp3Stream::open(string path)
@@ -122,6 +154,13 @@ long Mp3Stream::read(float* buffer, int bytes)
 
 bool Mp3Stream::close()
 {
+    if (openTmpFile)
+    {
+        LOG4CXX_DEBUG(narratorMsLog, "deleting temporary file " << mTmpFile);
+        if (remove(mTmpFile.c_str()) != 0) LOG4CXX_WARN(narratorMsLog, "file could not be deleted");
+        openTmpFile = false;
+        mTmpFile = "";
+    }
     if (isOpen)
     {
         mpg123_close(mh);

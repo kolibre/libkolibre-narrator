@@ -22,6 +22,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 
 #include "AudioStream.h"
 #include <mpg123.h>
+#include <string>
 
 class Mp3Stream: public AudioStream
 {
@@ -46,6 +47,8 @@ class Mp3Stream: public AudioStream
         long mRate;
         bool isOpen;
         size_t mFrameSize;
+        bool openTmpFile;
+        std::string mTmpFile;
         float scaleNegative;
         float scalePositive;
 
