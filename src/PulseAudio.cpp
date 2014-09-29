@@ -72,8 +72,7 @@ bool PulseAudio::open(long rate, int channels)
 
         if (!pSimple)
         {
-            //std::string errMsg(pa_strerror(mError));
-            std::string errMsg = "error";
+            std::string errMsg(pa_strerror(mError));
             LOG4CXX_ERROR(narratorPuaLog, "Connection failed: " << errMsg);
             return false;
         }
@@ -110,8 +109,7 @@ bool PulseAudio::close()
     {
         if (pa_simple_drain(pSimple, &mError) < 0)
         {
-            //std::string errMsg(pa_strerror(mError));
-            std::string errMsg = "error";
+            std::string errMsg(pa_strerror(mError));
             LOG4CXX_ERROR(narratorPuaLog, "pa_simple_drain() failed: " << errMsg);
         }
         isStarted = false;
@@ -147,8 +145,7 @@ bool PulseAudio::write(float *buffer, unsigned int samples)
     int retVal = pa_simple_write(pSimple, buffer, samples*4, &mError);
     if (retVal)
     {
-        //std::string errMsg(pa_strerror(mError));
-        std::string errMsg = "error";
+        std::string errMsg(pa_strerror(mError));
         LOG4CXX_ERROR(narratorPuaLog, "Failed to write samples: " << errMsg);
     }
 
