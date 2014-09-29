@@ -1189,6 +1189,7 @@ void *narrator_thread(void *narrator)
 
             if(!audioStream->open(pi.mIdentifier)) {
                 LOG4CXX_ERROR(narratorLog, "error opening audio stream: " << pi.mIdentifier);
+                audioStream->close();
                 continue;
             }
 
@@ -1282,6 +1283,7 @@ void *narrator_thread(void *narrator)
 
                     if(!audioStream->open(*audio)) {
                         LOG4CXX_ERROR(narratorLog, "error opening audio stream");
+                        audioStream->close();
                         break;
                     }
 
