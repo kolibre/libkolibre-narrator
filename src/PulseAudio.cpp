@@ -143,7 +143,8 @@ bool PulseAudio::write(float *buffer, unsigned int samples)
         isStarted = true;
     }
 
-    int retVal = pa_simple_write(pSimple, buffer, samples, &mError);
+    // don't know why but multiplying samples by 4 works
+    int retVal = pa_simple_write(pSimple, buffer, samples*4, &mError);
     if (retVal)
     {
         //std::string errMsg(pa_strerror(mError));
