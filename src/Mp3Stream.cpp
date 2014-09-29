@@ -140,11 +140,13 @@ long Mp3Stream::read(float* buffer, int bytes)
         }
         else if (value < 0)
         {
-            *buffer++ = (float)(value/scaleNegative);
+            // multiple with 2.0f to increase volume by a factor of 2 (+6dB)
+            *buffer++ = (float)(value/scaleNegative) * 2.0f;
         }
         else
         {
-            *buffer++ = (float)(value/scalePositive);
+            // multiple with 2.0f to increase volume by a factor of 2 (+6dB)
+            *buffer++ = (float)(value/scalePositive) * 2.0f;
         }
     }
     delete shortBuffer;
