@@ -41,6 +41,7 @@ Dependencies
 Major dependencies for libkolibre-narrator:
 
 * libvorbisfile
+* libmpg123
 * libportaudio19
 * sqlite3
 * libsoundtouch
