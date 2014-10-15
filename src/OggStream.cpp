@@ -174,7 +174,7 @@ long OggStream::read(float* buffer, int bytes)
     for (long i = 0; i < samples_read; i++)
         for(int c = 0; c < mChannels; c++)
             *bufptr++ = pcm[c][i];
-    return (samples_read)/mChannels;
+    return (samples_read);
 }
 
 bool OggStream::close()
