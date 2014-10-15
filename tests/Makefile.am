@@ -17,8 +17,8 @@
 
 AUTOMAKE_OPTIONS = foreign
 
-check_PROGRAMS = ringbuffer playfile dbtest interfacetest stress_test
-TESTS = ringbuffer playfile.sh dbtest.sh interfacetest.sh stress_test.sh
+check_PROGRAMS = ringbuffer playfile dbtest samplerate interfacetest stress_test
+TESTS = ringbuffer playfile.sh dbtest.sh samplerate.sh interfacetest.sh stress_test.sh
 
 ringbuffer_CPPFLAGS = @LOG4CXX_CFLAGS@
 ringbuffer_SOURCES = ringbuffer.cpp
@@ -32,6 +32,10 @@ dbtest_CPPFLAGS = @LOG4CXX_CFLAGS@
 dbtest_SOURCES = dbtest.cpp
 dbtest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
+samplerate_CPPFLAGS = @LOG4CXX_CFLAGS@
+samplerate_SOURCES = samplerate.cpp
+samplerate_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
+
 interfacetest_CPPFLAGS = @LOG4CXX_CFLAGS@
 interfacetest_SOURCES = interfacetest.cpp
 interfacetest_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
@@ -42,6 +46,6 @@ stress_test_LDADD = -L$(top_builddir)/src/ -lkolibre-narrator @LOG4CXX_LIBS@
 
 INCLUDES = -I$(top_srcdir)/src
 
-EXTRA_DIST = setup_logging.h playfile.sh dbtest.sh interfacetest.sh stress_test.sh testdata
+EXTRA_DIST = setup_logging.h playfile.sh dbtest.sh samplerate.sh interfacetest.sh stress_test.sh testdata
 
 .NOTPARALLEL:
