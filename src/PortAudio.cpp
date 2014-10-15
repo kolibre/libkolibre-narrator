@@ -169,6 +169,16 @@ bool PortAudio::close()
     return true;
 }
 
+long PortAudio::getRate()
+{
+    return mRate;
+}
+
+int PortAudio::getChannels()
+{
+    return mChannels;
+}
+
 long PortAudio::getRemainingms()
 {
     size_t bufferedData = ringbuf.getReadAvailable();

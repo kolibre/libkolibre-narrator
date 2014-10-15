@@ -1162,6 +1162,20 @@ void *narrator_thread(void *narrator)
                 continue;
             }
 
+            if (portaudio.getRate() != audioStream->getRate())
+            {
+                long waitms = portaudio.getRemainingms();
+                if (waitms != 0)
+                {
+                    LOG4CXX_DEBUG(narratorLog, "Waiting for current playback to finish");
+                    while (waitms > 0)
+                    {
+                        usleep(100000);
+                        waitms -= 100;
+                    }
+                }
+            }
+
             if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
                 LOG4CXX_ERROR(narratorLog, "error initializing portaudio, (rate: " << audioStream->getRate() << " channels: " << audioStream->getChannels() << ")");
                 continue;
@@ -1254,6 +1268,20 @@ void *narrator_thread(void *narrator)
                         LOG4CXX_ERROR(narratorLog, "error opening audio stream");
                         audioStream->close();
                         break;
+                    }
+
+                    if (portaudio.getRate() != audioStream->getRate())
+                    {
+                        long waitms = portaudio.getRemainingms();
+                        if (waitms != 0)
+                        {
+                            LOG4CXX_DEBUG(narratorLog, "Waiting for current playback to finish");
+                            while (waitms > 0)
+                            {
+                                usleep(100000);
+                                waitms -= 100;
+                            }
+                        }
                     }
 
                     if(!portaudio.open(audioStream->getRate(), audioStream->getChannels())) {
