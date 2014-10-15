@@ -116,7 +116,7 @@ long Mp3Stream::read(float* buffer, int bytes)
     shortBuffer = new short[bytes*mChannels];
 
     size_t done = 0;
-    int result = mpg123_read(mh, (unsigned char*)shortBuffer, bytes*mChannels*sizeof(short), &done);
+    int result = mpg123_read(mh, (unsigned char*)shortBuffer, bytes*sizeof(short), &done);
 
     switch (result)
     {
