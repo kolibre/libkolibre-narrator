@@ -123,6 +123,16 @@ bool PulseAudio::close()
     return false;
 }
 
+long PulseAudio::getRate()
+{
+    return mRate;
+}
+
+int PulseAudio::getChannels()
+{
+    return mChannels;
+}
+
 unsigned int PulseAudio::getWriteAvailable()
 {
     return RINGBUFFERSIZE;

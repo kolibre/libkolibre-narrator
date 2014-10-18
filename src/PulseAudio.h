@@ -35,6 +35,9 @@ class PulseAudio: public AudioSystem {
         long abort();
         bool close();
 
+        long getRate();
+        int getChannels();
+
         // Checks how many samples we can write
         unsigned int getWriteAvailable();
 

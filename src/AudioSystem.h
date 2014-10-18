@@ -30,6 +30,9 @@ class AudioSystem {
         virtual long abort() = 0;
         virtual bool close() = 0;
 
+        virtual long getRate() = 0;
+        virtual int getChannels() = 0;
+
         // Checks how many samples we can write
         virtual unsigned int getWriteAvailable() = 0;
 
