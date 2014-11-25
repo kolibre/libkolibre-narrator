@@ -100,7 +100,7 @@ class Audio:
 			returns True and sets id to the value obtained from the database
 		"""
 		if not self.exists(cursor, translationId):
-			text = unicode(self.text,'utf-8)').encode('latin1')
+			text = unicode(self.text,'utf-8)').encode('utf-8')
 			t = (translationId, self.tagid, text, self.size, self.length, self.encoding, self.data, self.md5)
 			cursor.execute('INSERT INTO messageaudio VALUES (?, ?, ?, ?, ?, ?, ?, ?)', t)
 			self.id = cursor.lastrowid
@@ -117,7 +117,7 @@ class Audio:
 			returns True if the instance already exist in the database and sets id to the value obtained from the database,
 			otherwise returns False
 		"""
-		text = unicode(self.text,'utf-8)').encode('latin1')
+		text = unicode(self.text,'utf-8)').encode('utf-8')
 		t = (translationId, self.tagid, text)
 		cursor.execute('SELECT rowid FROM messageaudio WHERE translation_id = ? AND tagid = ? AND text = ?', t)
 		row = cursor.fetchone()

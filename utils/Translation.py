@@ -95,7 +95,7 @@ class Translation:
 			returns True and sets id to the value obtained from the database
 		"""
 		if not self.exists(cursor, messageId):
-			text = unicode(messagehelper.stripparamtype(self.text),'utf-8)').encode('latin1')
+			text = unicode(messagehelper.stripparamtype(self.text),'utf-8)').encode('utf-8')
 			t = (messageId, text, self.language, self.tags(self.text))
 			cursor.execute('INSERT INTO messagetranslation VALUES (?, ?, ?, ?)', t)
 			self.id = cursor.lastrowid
@@ -116,7 +116,7 @@ class Translation:
 			returns True if the instance already exist in the database and sets id to the value obtained from the database,
 			otherwise returns False
 		"""
-		text = unicode(messagehelper.stripparamtype(self.text),'utf-8)').encode('latin1')
+		text = unicode(messagehelper.stripparamtype(self.text),'utf-8)').encode('utf-8')
 		t = (messageId, text, self.language)
 		cursor.execute('SELECT rowid FROM messagetranslation WHERE message_id = ? AND translation = ? AND language = ?', t)
 		row = cursor.fetchone()
