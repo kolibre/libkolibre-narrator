@@ -84,5 +84,3 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with libkolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
-
-[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/86183bc334a5abaa4505507a97c0931a "githalytics.com")](http://githalytics.com/kolibre/libkolibre-narrator)
