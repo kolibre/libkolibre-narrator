@@ -26,7 +26,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <log4cxx/logger.h>
 
-#define RINGBUFFERSIZE 4096*16
+#define RINGBUFFERSIZE 2048*16
 
 // create logger which will become a child to logger kolibre.narrator
 log4cxx::LoggerPtr narratorPaLog(log4cxx::Logger::getLogger("kolibre.narrator.portaudio"));
