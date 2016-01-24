@@ -227,7 +227,7 @@ unsigned int PortAudio::getWriteAvailable()
             }
 
             mError = Pa_StartStream(pStream);
-            if(mError != paNoError) LOG4CXX_ERROR(narratorPaLog, "[PortAudio::getWriteAvailable] Failed to start stream: " << Pa_GetErrorText(mError));
+            if(mError != paNoError) LOG4CXX_ERROR(narratorPaLog, "Failed to start stream: " << Pa_GetErrorText(mError));
             isStarted = true;
 
             waitCount = 0;
@@ -247,7 +247,7 @@ bool PortAudio::write(float *buffer, unsigned int samples)
         LOG4CXX_TRACE(narratorPaLog, "Starting stream");
         mError = Pa_StartStream(pStream);
         if(mError != paNoError) {
-            LOG4CXX_ERROR(narratorPaLog, "[PortAudio::write] Failed to start stream: " << Pa_GetErrorText(mError));
+            LOG4CXX_ERROR(narratorPaLog, "Failed to start stream: " << Pa_GetErrorText(mError));
         }
         mLatency = (long) (Pa_GetStreamInfo(pStream)->outputLatency * 1000.0);
         isStarted = true;
