@@ -38,7 +38,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-#define BUFFERSIZE 4096
+#define BUFFERSIZE 1024
 
 #include "Narrator.h"
 #include "OggStream.h"
@@ -1041,7 +1041,7 @@ void writeSamplesToPortaudio( Narrator* n, PortAudio& portaudio, Filter& filter,
     // See if we have any finished samples
     // One filter sample contains data from all channels
     while((outSamples = filter.numSamples()) != 0 && state == Narrator::PLAY) {
-        int available = portaudio.getWriteAvailable();
+        int available = portaudio.getWriteAvailable() / portaudio.getChannels();
 
         LOG4CXX_TRACE(narratorLog, "got available: " << available << ", outSamples: " << outSamples);
 
@@ -1197,7 +1197,7 @@ void *narrator_thread(void *narrator)
                 adjustGainTempoPitch(n, filter, gain, tempo, pitch);
 
                 // read some stuff from the audio stream
-                inSamples = audioStream->read(buffer, BUFFERSIZE*audioStream->getChannels());
+                inSamples = audioStream->read(buffer, BUFFERSIZE/**audioStream->getChannels()*/);
                 LOG4CXX_TRACE(narratorLog, "got " << inSamples << " samples");
 
                 //printf("Read %d samples from audio stream\n", inSamples);

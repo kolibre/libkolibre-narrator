@@ -26,7 +26,7 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <log4cxx/logger.h>
 
-#define RINGBUFFERSIZE 1024*16
+#define RINGBUFFERSIZE 4096*16
 
 // create logger which will become a child to logger kolibre.narrator
 log4cxx::LoggerPtr narratorPaLog(log4cxx::Logger::getLogger("kolibre.narrator.portaudio"));
@@ -72,7 +72,7 @@ PortAudio::~PortAudio()
 bool PortAudio::open(long rate, int channels)
 {
 
-    if(mRate != rate || mChannels != mChannels) {
+    if(mRate != rate || mChannels != channels) {
         close();
     }
 
@@ -101,7 +101,7 @@ bool PortAudio::open(long rate, int channels)
         framesPerBuffer = 4096;
 #endif
 
-        mError = Pa_OpenStream(&pStream, NULL, &mOutputParameters, rate, paFramesPerBufferUnspecified,
+        mError = Pa_OpenStream(&pStream, NULL, &mOutputParameters, rate, framesPerBuffer/*paFramesPerBufferUnspecified*/,
                 paNoFlag, pa_stream_callback, this);
 
         if(mError != paNoError) {
@@ -228,6 +228,7 @@ unsigned int PortAudio::getWriteAvailable()
 
             mError = Pa_StartStream(pStream);
             if(mError != paNoError) LOG4CXX_ERROR(narratorPaLog, "Failed to start stream: " << Pa_GetErrorText(mError));
+            isStarted = true;
 
             waitCount = 0;
         }
@@ -302,7 +303,7 @@ int pa_stream_callback(
 
     if( elementsRead < frameCount*channels ) {
         memset( (outbuf+(elementsRead)), 0, (frameCount*channels-elementsRead)*sizeof(float) );
-        underrunms += (long) (frameCount * 1000.0) / rate;
+        underrunms += (long) (frameCount * channels * 1000.0) / rate;
         //LOG4CXX_DEBUG(narratorPaLog, " Less read than requested, underrun ms:" << underrunms );
     } else {
         //LOG4CXX_TRACE(narratorPaLog, " availableElements: " << availableElements << " elementsToRead: " << elementsToRead << " elementsRead:" << elementsRead);

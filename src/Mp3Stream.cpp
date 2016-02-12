@@ -26,11 +26,11 @@ along with kolibre-narrator. If not, see <http://www.gnu.org/licenses/>.
 #include <log4cxx/logger.h>
 
 // create logger which will become a child to logger kolibre.narrator
-log4cxx::LoggerPtr narratorMsLog(log4cxx::Logger::getLogger("kolibre.narrator.mp3stream"));
+log4cxx::LoggerPtr narratorMP3StreamLog(log4cxx::Logger::getLogger("kolibre.narrator.mp3stream"));
 
 Mp3Stream::Mp3Stream()
 {
-    LOG4CXX_INFO(narratorMsLog, "Initializing mp3stream");
+    LOG4CXX_INFO(narratorMP3StreamLog, "Initializing mp3stream");
 
     mError = 0;
     mEncoding = 0;
@@ -63,7 +63,7 @@ bool Mp3Stream::open(const MessageAudio &ma)
     size_t bytesToRead = ma.getSize();
 
     // read audio data from database to buffer
-    LOG4CXX_DEBUG(narratorMsLog, "reading " << bytesToRead << " bytes from database");
+    LOG4CXX_DEBUG(narratorMP3StreamLog, "reading " << bytesToRead << " bytes from database");
     currentAudio = ma;
     char *buffer;
     buffer = (char *) malloc (bytesToRead * sizeof(char));
@@ -72,15 +72,15 @@ bool Mp3Stream::open(const MessageAudio &ma)
 
     // write buffer data to tmp file
     mTmpFile = std::tmpnam(NULL);
-    LOG4CXX_DEBUG(narratorMsLog, "creating temporary file " << mTmpFile);
+    LOG4CXX_DEBUG(narratorMP3StreamLog, "creating temporary file " << mTmpFile);
     FILE *pFile = fopen(mTmpFile.c_str(), "wb");
     if (pFile == NULL)
     {
-        LOG4CXX_ERROR(narratorMsLog, "failed to open temporary file");
+        LOG4CXX_ERROR(narratorMP3StreamLog, "failed to open temporary file");
         free(buffer);
         return false;
     }
-    LOG4CXX_DEBUG(narratorMsLog, "writing " << bytesRead << " bytes to file");
+    LOG4CXX_DEBUG(narratorMP3StreamLog, "writing " << bytesRead << " bytes to file");
     fwrite(buffer, sizeof(char), bytesRead, pFile);
     fclose(pFile);
     free(buffer);
@@ -95,12 +95,13 @@ bool Mp3Stream::open(string path)
     int result = mpg123_open(mh, path.c_str());
     if (result != MPG123_OK)
     {
-        LOG4CXX_ERROR(narratorMsLog, "File " << path << " could not be opened");
+        LOG4CXX_ERROR(narratorMP3StreamLog, "File " << path << " could not be opened");
         return false;
     }
 
     // get rate, channels and encoding
     mpg123_getformat(mh, &mRate, &mChannels, &mEncoding);
+    LOG4CXX_TRACE(narratorMP3StreamLog, "MP3 open with encoding " << mEncoding);
     isOpen = true;
 
     return true;
@@ -109,57 +110,58 @@ bool Mp3Stream::open(string path)
 // Returns samples (1 sample contains data from all channels)
 long Mp3Stream::read(float* buffer, int bytes)
 {
-    LOG4CXX_TRACE(narratorMsLog, "read " << bytes << " bytes from mp3 file");
+    LOG4CXX_TRACE(narratorMP3StreamLog, "read " << bytes << " bytes from mp3 file");
 
     // mpg123 uses enconding MPG123_ENC_SIGNED_16 which results in decoded short samples
     short *shortBuffer;
-    shortBuffer = new short[bytes*mChannels];
+    shortBuffer = new short[bytes * mChannels];
 
     size_t done = 0;
-    int result = mpg123_read(mh, (unsigned char*)shortBuffer, bytes*sizeof(short), &done);
+    int result = mpg123_read(mh, (unsigned char*)shortBuffer, bytes*sizeof(short)*mChannels, &done);
 
     switch (result)
     {
         case MPG123_DONE:
-            LOG4CXX_DEBUG(narratorMsLog, "End of stream");
+            LOG4CXX_DEBUG(narratorMP3StreamLog, "End of stream");
             break;
         case MPG123_OK:
             break;
     }
 
-    LOG4CXX_TRACE(narratorMsLog, done << " bytes decoded");
+    LOG4CXX_TRACE(narratorMP3StreamLog, done << " bytes decoded");
 
     // convert short buffer to scaled float buffer
     float *bufptr = buffer;
+
     for (int i = 0; i < done/sizeof(short); i++)
     {
         int value = (int)shortBuffer[i];
         if (value == 0)
         {
-            *buffer++ = 0.f;
+            *bufptr++ = 0.f;
         }
         else if (value < 0)
         {
             // multiple with 2.0f to increase volume by a factor of 2 (+6dB)
-            *buffer++ = (float)(value/scaleNegative) * 2.0f;
+            *bufptr++ = (float)(value/scaleNegative) * 2.0f;
         }
         else
         {
             // multiple with 2.0f to increase volume by a factor of 2 (+6dB)
-            *buffer++ = (float)(value/scalePositive) * 2.0f;
+            *bufptr++ = (float)(value/scalePositive) * 2.0f;
         }
     }
     delete shortBuffer;
 
-    return done/sizeof(short);
+    return done/(sizeof(short) * mChannels);
 }
 
 bool Mp3Stream::close()
 {
     if (openTmpFile)
     {
-        LOG4CXX_DEBUG(narratorMsLog, "deleting temporary file " << mTmpFile);
-        if (remove(mTmpFile.c_str()) != 0) LOG4CXX_WARN(narratorMsLog, "file could not be deleted");
+        LOG4CXX_DEBUG(narratorMP3StreamLog, "deleting temporary file " << mTmpFile);
+        if (remove(mTmpFile.c_str()) != 0) LOG4CXX_WARN(narratorMP3StreamLog, "file could not be deleted");
         openTmpFile = false;
         mTmpFile = "";
     }
