@@ -45,7 +45,7 @@ dnl  e.g. [$MAJOR_VERSION.$MINOR_VERSION.$PATCH_VERSION-rc1]
 # Setup version here:
 m4_define([MAJOR_VERSION], [1])
 m4_define([MINOR_VERSION], [0])
-m4_define([PATCH_VERSION], [1])
+m4_define([PATCH_VERSION], [2])
 m4_define([EXTRA_VERSION], [])
 
 AC_PREREQ([2.67])
